@@ -1,0 +1,85 @@
+## GitLab Runner values.yaml
+## - Source: https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/main/values.yaml
+
+## REQUIRED VALUES
+gitlabUrl: {{ requiredEnv "CI_SERVER_URL" | quote }}
+runnerToken: {{ requiredEnv "GITLAB_RUNNER_TOKEN" | quote }}
+
+## Configure the maximum number of concurrent jobs
+## - Documentation: https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-global-section
+## - Default value: 10
+## - Currently don't support auto-scaling.
+concurrent: 4
+
+## Defines in seconds how often to check GitLab for a new builds
+## - Documentation: https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-global-section
+## - Default value: 3
+checkInterval: 3
+
+## For RBAC support
+rbac:
+  create: true
+  clusterWideAccess: false
+  rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["get", "create"]
+  - apiGroups: [""]
+    resources: ["pods/attach"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["create", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["create"]
+
+## Configuration for the Pods that that the runner launches for each new job
+runners:
+  # runner configuration, where the multi line strings is evaluated as
+  # template so you can specify helm values inside of it.
+  #
+  # tpl: https://helm.sh/docs/howto/charts_tips_and_tricks/#using-the-tpl-function
+  # runner configuration: https://docs.gitlab.com/runner/configuration/advanced-configuration.html
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "ubuntu"
+
+  ## If you can't find a setting you think should be here this may help:
+  ##
+  ## The gitlab-runner chart uses `templates/configmap.yaml` to configure runners
+  ## `configmap.yaml`'s `data.register-the-runner` transforms this file into runner CLI options
+  ## `configmap.yaml`'s `data.config.toml` and `data.config.template.toml` transform this file into the runner's config.toml
+  ##
+  ## - Source code for `configmap.yaml` https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/main/templates/configmap.yaml
+  ## - Documentation for `config.toml` https://docs.gitlab.com/runner/executors/kubernetes.html#configuration-settings
+  ## - Source code for runner CLI options (see `KubernetesConfig` struct) https://gitlab.com/gitlab-org/gitlab-runner/-/blob/main/common/config.go
+
+## Configure resource requests and limits
+## ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+##
+resources: {}
+  # limits:
+  #   memory: 256Mi
+  #   cpu: 200m
+  #   ephemeral-storage: 512Mi
+  # requests:
+  #   memory: 128Mi
+  #   cpu: 100m
+  #   ephemeral-storage: 256Mi
+
+## Configure securitycontext for the main container
+## ref: https://kubernetes.io/docs/concepts/security/pod-security-standards/
+##
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  privileged: false
+  capabilities:
+    drop: ["ALL"]
