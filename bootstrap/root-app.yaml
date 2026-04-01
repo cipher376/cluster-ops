@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-bootstrap
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'http://172.16.0.102/ml/cluster-ops.git'
+    targetRevision: HEAD
+    path: apps  # This points to the folder where your other app manifests live
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

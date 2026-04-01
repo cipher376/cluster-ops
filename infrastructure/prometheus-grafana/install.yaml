@@ -1,0 +1,211 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-stack
+  namespace: monitoring
+---
+# CRITICAL FIX: Prometheus needs RBAC to "Discover" pods/nodes in the cluster
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-stack-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/metrics", "services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-stack-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-stack-role
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-stack
+    namespace: monitoring
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus-stack-grafana-admin
+  namespace: monitoring
+type: Opaque
+stringData:
+  admin-user: admin
+  admin-password: "hello-55-&&&-MK4" # Always wrap passwords in quotes to avoid YAML type errors
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-stack-grafana-datasources
+  namespace: monitoring
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+      access: proxy
+      isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-stack-prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 30s
+      evaluation_interval: 30s
+    scrape_configs:
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-stack-prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-stack
+      component: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus-stack
+        component: prometheus
+    spec:
+      serviceAccountName: prometheus-stack
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.45.0
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+          - '--web.console.templates=/usr/share/prometheus/consoles'
+          - '--web.enable-lifecycle'
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: storage
+          mountPath: /prometheus
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-stack-prometheus-config
+      - name: storage
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-stack-grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-stack
+      component: grafana
+  template:
+    metadata:
+      labels:
+        app: prometheus-stack
+        component: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:10.0.0
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: prometheus-stack-grafana-admin
+              key: admin-user
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: prometheus-stack-grafana-admin
+              key: admin-password
+        - name: GF_INSTALL_PLUGINS
+          value: "grafana-piechart-panel"
+        volumeMounts:
+        - name: datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: storage
+          mountPath: /var/lib/grafana
+      volumes:
+      - name: datasources
+        configMap:
+          name: prometheus-stack-grafana-datasources
+      - name: storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-stack-prometheus
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus-stack
+    component: prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-stack-grafana
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus-stack
+    component: grafana
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: http

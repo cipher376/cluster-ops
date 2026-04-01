@@ -1,0 +1,18 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "allow-gateway-only"
+  namespace: default
+spec:
+  endpointSelector:
+    matchLabels:
+      app: lab-app  # Matches your app labels
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            "io.kubernetes.pod.namespace": cilium-secrets
+            "app.kubernetes.io/name": cilium-gateway
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
