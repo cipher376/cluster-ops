@@ -9,6 +9,8 @@ spec:
     repoURL: 'http://172.16.0.102/ml/cluster-ops.git'
     targetRevision: HEAD
     path: bootstrap/gitlab-runner
+    directory: 
+      recurse: true
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
