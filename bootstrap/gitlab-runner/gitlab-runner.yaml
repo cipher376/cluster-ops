@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-runner
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: gitlab-runner
+    repoURL: https://charts.gitlab.io
+    targetRevision: 0.63.0 # Match your preferred version
+    helm:
+      values: |
+        gitlabUrl: "http://172.16.0.102"
+        # Reference the secret created in Step 2
+        runnerToken:
+          secret: gitlab-runner-secret
+          key: token
+        rbac:
+          create: true
+        runners:
+          config: |
+            [[runners]]
+              request_concurrency = 2
+              [runners.kubernetes]
+                namespace = "gitlab-runner"
+                image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+                privileged = true
+                cpu_limit = "4"
+                memory_limit = "8Gi"
+                service_account = "gitlab-runner"
+                # Ensure the executor pods have the right permissions
+                bearer_token_overwrite_allowed = false
+              [[runners.kubernetes.node_selector]]
+                hardware = "gpu"
+              [[runners.kubernetes.tolerations]]
+                key = "dedicated"
+                operator = "Equal"
+                value = "gpu"
+                effect = "NoSchedule"
+              [runners.kubernetes.pod_annotations]
+                "nvidia.com/gpu" = "1"
+              [[runners.kubernetes.volumes.host_path]]
+                name = "nvidia-libs"
+                mount_path = "/usr/local/nvidia"
+                read_only = true
+                host_path = "/lib/x86_64-linux-gnu"
+              [[runners.kubernetes.volumes.empty_dir]]
+                name = "model-cache"
+                mount_path = "/root/.cache/huggingface"
+              [[runners.kubernetes.volumes.host_path]]
+                name = "nfs-checkpoints"
+                mount_path = "/models/checkpoints"
+                host_path = "/mnt/training-cache/checkpoints"
+                read_only = false
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab-runner
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
