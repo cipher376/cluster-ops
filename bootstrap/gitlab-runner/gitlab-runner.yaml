@@ -12,13 +12,10 @@ spec:
     helm:
       values: |
         gitlabUrl: "http://172.16.0.102"
-        # Reference the secret created in Step 2
-        runnerToken:
-          secret: gitlab-runner-secret
-          key: token
         rbac:
           create: true
         runners:
+          secret: gitlab-runner-secret
           config: |
             [[runners]]
               request_concurrency = 2
@@ -29,7 +26,6 @@ spec:
                 cpu_limit = "4"
                 memory_limit = "8Gi"
                 service_account = "gitlab-runner"
-                # Ensure the executor pods have the right permissions
                 bearer_token_overwrite_allowed = false
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
