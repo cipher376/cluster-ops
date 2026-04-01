@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'http://gitlab-server.lan/ml/cluster-ops.git'
+    repoURL: 'http://172.16.0.102/ml/cluster-ops.git'
     targetRevision: HEAD
     path: workloads/gpu-smoke-test
   destination:
