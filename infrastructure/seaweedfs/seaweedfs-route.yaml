@@ -41,13 +41,14 @@ spec:
       namespace: cilium-secrets
       sectionName: http
   hostnames:
-    - "s3.lab.lan"
+    - "seaweedfs-s3.lab.lan"
   rules:
     - matches:
         - path:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: seaweedfs-filer   # Verify with: kubectl get svc -n seaweedfs
+        - name: seaweedfs-s3   
           namespace: seaweedfs
           port: 8333
+
