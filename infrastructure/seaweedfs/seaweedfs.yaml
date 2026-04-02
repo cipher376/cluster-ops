@@ -67,11 +67,11 @@ spec:
           domainName: "seaweedfs.lab.lan"
           readinessProbe:
             httpGet:
-              path: /        # Change from /status to /
+              path: /status        # Change from /status to /
               port: 8333
             initialDelaySeconds: 15
             periodSeconds: 15
-            
+
         admin:
           enabled: true
           port: 23646
