@@ -25,6 +25,9 @@ spec:
         # This matches the 'target.name' in your ExternalSecret manifest
         runners:
           secret: gitlab-runner-secret
+        secret:
+          name: gitlab-runner-secret
+          key: runner-token
           
           config: |
             [[runners]]
