@@ -5,8 +5,8 @@ metadata:
   namespace: vault
 spec:
   parentRefs:
-    - name: lab-gateway
-      namespace: kube-system
+    - name: cilium-gateway
+      namespace: cilium-secrets
       sectionName: http
   hostnames:
     - "vault.lab.lan"
