@@ -1,0 +1,85 @@
+---
+# =============================================================================
+# ExternalSecret — pulls MinIO credentials from Vault KV
+# Seed the secret first:
+#   kubectl exec -n vault vault-0 -- vault kv put -mount=secret \
+#     minio/credentials \
+#     root-user="admin" \
+#     root-password="YourSecurePassword123"
+# =============================================================================
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-credentials
+  namespace: minio-storage
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: minio-credentials
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        # Key names must match what the Bitnami MinIO chart expects
+        # when using auth.existingSecret
+        root-user:     "{{ .root-user }}"
+        root-password: "{{ .root-password }}"
+  data:
+    - secretKey: root-user
+      remoteRef:
+        key: minio/credentials
+        property: root-user
+    - secretKey: root-password
+      remoteRef:
+        key: minio/credentials
+        property: root-password
+---
+# =============================================================================
+# ArgoCD Application — MinIO via Bitnami chart
+# =============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-server
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: minio
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 14.x.x
+    helm:
+      values: |
+        auth:
+          # Remove hardcoded credentials — use the secret ESO creates from Vault
+          existingSecret: minio-credentials
+          rootUserSecretKey: root-user
+          rootPasswordSecretKey: root-password
+
+        persistence:
+          enabled: true
+          existingClaim: "minio-pvc"
+
+        service:
+          # type: LoadBalancer # Will use with cilium gateway
+          ports:
+            api: 9000
+            console: 9001
+
+        containerSecurityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio-storage
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
