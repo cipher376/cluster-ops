@@ -56,7 +56,7 @@ spec:
                 key      = "dedicated"
                 operator = "Equal"
                 value    = "gpu"
-                effect   = "NoSchedule"
+                effect   = "NoExecute"
 
               # NVIDIA libs from host — required since you're using host driver passthrough
               [[runners.kubernetes.volumes.host_path]]
