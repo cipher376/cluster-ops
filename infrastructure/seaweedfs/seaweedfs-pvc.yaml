@@ -14,7 +14,7 @@ metadata:
   name: seaweedfs-nfs-pv
 spec:
   capacity:
-    storage: 7Ti
+    storage: 8Ti
   accessModes:
     - ReadWriteMany          # SeaweedFS volume/filer nodes can all write
   persistentVolumeReclaimPolicy: Retain
