@@ -1,3 +1,25 @@
+---
+# PersistentVolumes are cluster-scoped — namespace field is invalid and must be removed
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-nfs-pv
+spec:
+  capacity:
+    storage: 8Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""    # Empty string required to prevent default StorageClass binding
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+    - timeo=600
+    - retrans=2
+  nfs:
+    server: 172.16.0.15   # prodesk-node-02 8TB ZFS pool
+    path: /mnt/pve/Cluster-Models/minio-data
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,3 +32,4 @@ spec:
     requests:
       storage: 8Ti
   volumeName: minio-nfs-pv
+  storageClassName: ""    # Must match PV — empty string binds directly to the named PV
