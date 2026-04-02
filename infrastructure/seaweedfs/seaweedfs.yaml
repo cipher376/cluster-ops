@@ -100,12 +100,16 @@ spec:
         # -------------------------------------------------------------------
         # WebUI
         # -------------------------------------------------------------------
-        webUI:
+        admin:
           enabled: true
-          port: 9001
+          port: 23646
+          # Optional: add resources if your 8TB pool is very busy
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
           service:
-            type: ClusterIP   # Exposed via HTTPRoute below
-
+            type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: seaweedfs
