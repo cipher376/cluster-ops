@@ -49,6 +49,10 @@ spec:
                 mount_path = "/models/checkpoints"
                 host_path = "/mnt/training-cache/checkpoints"
                 read_only = false
+              [[runners.kubernetes.volumes.secret]]
+                name = "gitlab-runner-secret"
+                mount_path = "/etc/gitlab-runner/secrets"
+                read_only = true
           
   destination:
     server: https://kubernetes.default.svc
