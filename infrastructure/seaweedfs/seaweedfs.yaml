@@ -65,6 +65,11 @@ spec:
           enableAuth: true
           existingConfigSecret: seaweedfs-credentials
           domainName: "seaweedfs.lab.lan"
+          readinessProbe:
+            httpGet:
+              path: /        # Change from /status to /
+              port: 8333
+            initialDelaySeconds: 15
 
         admin:
           enabled: true
