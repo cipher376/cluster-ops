@@ -2,6 +2,15 @@
 # =============================================================================
 # ArgoCD Application — SeaweedFS via Helm
 # =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seaweedfs
+  labels:
+    name: seaweedfs
+    # Optional: If you use Pod Security Admissions
+    pod-security.kubernetes.io/enforce: privileged
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
