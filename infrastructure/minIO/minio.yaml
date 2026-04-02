@@ -22,20 +22,15 @@ spec:
     creationPolicy: Owner
     template:
       type: Opaque
-      data:
-        # Key names must match what the Bitnami MinIO chart expects
-        # when using auth.existingSecret
-        root-user:     "{{ .root-user }}"
-        root-password: "{{ .root-password }}"
   data:
-    - secretKey: root-user
+    - secretKey: rootUser
       remoteRef:
         key: minio/credentials
-        property: root-user
-    - secretKey: root-password
+        property: user
+    - secretKey: rootPassword
       remoteRef:
         key: minio/credentials
-        property: root-password
+        property: password
 ---
 # =============================================================================
 # ArgoCD Application — MinIO via Bitnami chart
@@ -83,3 +78,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+
