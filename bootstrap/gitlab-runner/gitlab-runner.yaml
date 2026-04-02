@@ -12,9 +12,8 @@ spec:
     helm:
       values: |
         gitlabUrl: "http://172.16.0.102"
-        
+
         # --- RBAC Configuration ---
-        # Set to false because you are providing the Role/ServiceAccount manually
         rbac:
           create: false
         serviceAccount:
@@ -22,66 +21,66 @@ spec:
           name: gitlab-runner
 
         # --- Secret Configuration ---
-        # This matches the 'target.name' in your ExternalSecret manifest
+        # GitLab 18.x uses authentication tokens (glrt- prefix) — no registration token
+        # 'secret' points to the K8s secret Vault Agent injects at runtime
+        # 'runnerToken' tells the chart to read the 'runner-token' key from that secret
         runners:
           secret: gitlab-runner-secret
-          registrationTokenKey: "runner-token"
-          
-        secret:
-          create: false
-          name: gitlab-runner-secret
-          key: runner-token
+          # registrationTokenKey is not valid in 18.x — use runnerToken instead
+          # The chart reads the 'runner-token' key from the secret named above
+          executor: kubernetes
 
           config: |
             [[runners]]
               request_concurrency = 2
+
               [runners.kubernetes]
-                namespace = "gitlab-runner"
-                # Using the PyTorch image you specified for AI training
-                image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
-                privileged = true
-                cpu_limit = "4"
-                memory_limit = "8Gi"
-                service_account = "gitlab-runner"
+                namespace           = "gitlab-runner"
+                image               = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+                privileged          = true
+                cpu_limit           = "4"
+                memory_limit        = "8Gi"
+                service_account     = "gitlab-runner"
                 bearer_token_overwrite_allowed = false
-                
-                # --- Resource Management ---
-                # Explicitly request the GPU for the Pod
-                [runners.kubernetes.resources]
-                  limits = { "nvidia.com/gpu" = "1" }
-                  requests = { "nvidia.com/gpu" = "1" }
+
+                [runners.kubernetes.resource_requirements]
+                  [runners.kubernetes.resource_requirements.limits]
+                    "nvidia.com/gpu" = "1"
+                  [runners.kubernetes.resource_requirements.requests]
+                    "nvidia.com/gpu" = "1"
 
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
 
               [[runners.kubernetes.tolerations]]
-                key = "dedicated"
+                key      = "dedicated"
                 operator = "Equal"
-                value = "gpu"
-                effect = "NoSchedule"
+                value    = "gpu"
+                effect   = "NoSchedule"
 
-              # --- Volume Mounting ---
-              # Note: Standard k8s secrets are mounted automatically by the 'secret' field above,
-              # but these manual mounts help with your specific host-path requirements.
+              # NVIDIA libs from host — required since you're using host driver passthrough
               [[runners.kubernetes.volumes.host_path]]
-                name = "nvidia-libs"
+                name       = "nvidia-libs"
                 mount_path = "/usr/local/nvidia"
-                read_only = true
-                host_path = "/lib/x86_64-linux-gnu"
-                
+                read_only  = true
+                host_path  = "/lib/x86_64-linux-gnu"
+
+              # HuggingFace model cache — ephemeral per job
               [[runners.kubernetes.volumes.empty_dir]]
-                name = "model-cache"
+                name       = "model-cache"
                 mount_path = "/root/.cache/huggingface"
-                
+
+              # NFS checkpoint storage on prodesk-node-02 ZFS pool
               [[runners.kubernetes.volumes.host_path]]
-                name = "nfs-checkpoints"
+                name       = "nfs-checkpoints"
                 mount_path = "/models/checkpoints"
-                host_path = "/mnt/training-cache/checkpoints"
-                read_only = false
-          
+                host_path  = "/mnt/training-cache/checkpoints"
+                read_only  = false
+
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab-runner
+
   syncPolicy:
     automated:
       prune: true
