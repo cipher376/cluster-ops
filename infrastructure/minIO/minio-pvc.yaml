@@ -18,7 +18,7 @@ spec:
     - retrans=2
   nfs:
     server: 172.16.0.15   # prodesk-node-02 8TB ZFS pool
-    path: /mnt/pve/Cluster-Models/minio-data
+    path: /mnt/pve/Cluster-Models
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
