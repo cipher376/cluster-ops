@@ -8,51 +8,70 @@ spec:
   source:
     chart: gitlab-runner
     repoURL: https://charts.gitlab.io
-    targetRevision: 0.63.0 # Match your preferred version
+    targetRevision: 0.63.0
     helm:
       values: |
         gitlabUrl: "http://172.16.0.102"
+        
+        # --- RBAC Configuration ---
+        # Set to false because you are providing the Role/ServiceAccount manually
         rbac:
-          create: true
+          create: false
+        serviceAccount:
+          create: false
+          name: gitlab-runner
+
+        # --- Secret Configuration ---
+        # This matches the 'target.name' in your ExternalSecret manifest
         runners:
           secret: gitlab-runner-secret
+          
           config: |
             [[runners]]
               request_concurrency = 2
               [runners.kubernetes]
                 namespace = "gitlab-runner"
+                # Using the PyTorch image you specified for AI training
                 image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
                 privileged = true
                 cpu_limit = "4"
                 memory_limit = "8Gi"
                 service_account = "gitlab-runner"
                 bearer_token_overwrite_allowed = false
+                
+                # --- Resource Management ---
+                # Explicitly request the GPU for the Pod
+                [runners.kubernetes.resources]
+                  limits = { "nvidia.com/gpu" = "1" }
+                  requests = { "nvidia.com/gpu" = "1" }
+
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
+
               [[runners.kubernetes.tolerations]]
                 key = "dedicated"
                 operator = "Equal"
                 value = "gpu"
                 effect = "NoSchedule"
-              [runners.kubernetes.pod_annotations]
-                "nvidia.com/gpu" = "1"
+
+              # --- Volume Mounting ---
+              # Note: Standard k8s secrets are mounted automatically by the 'secret' field above,
+              # but these manual mounts help with your specific host-path requirements.
               [[runners.kubernetes.volumes.host_path]]
                 name = "nvidia-libs"
                 mount_path = "/usr/local/nvidia"
                 read_only = true
                 host_path = "/lib/x86_64-linux-gnu"
+                
               [[runners.kubernetes.volumes.empty_dir]]
                 name = "model-cache"
                 mount_path = "/root/.cache/huggingface"
+                
               [[runners.kubernetes.volumes.host_path]]
                 name = "nfs-checkpoints"
                 mount_path = "/models/checkpoints"
                 host_path = "/mnt/training-cache/checkpoints"
                 read_only = false
-              [[runners.kubernetes.volumes.secret]]
-                name = "gitlab-runner-secret"
-                mount_path = "/etc/gitlab-runner/secrets"
-                read_only = true
           
   destination:
     server: https://kubernetes.default.svc
