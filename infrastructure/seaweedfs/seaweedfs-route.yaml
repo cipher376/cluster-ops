@@ -22,9 +22,9 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: seaweedfs-webui   # Verify with: kubectl get svc -n seaweedfs
+        - name: seaweedfs-admin   # Verify with: kubectl get svc -n seaweedfs
           namespace: seaweedfs
-          port: 9001
+          port: 23646
 ---
 # =============================================================================
 # HTTPRoute — S3 API endpoint
