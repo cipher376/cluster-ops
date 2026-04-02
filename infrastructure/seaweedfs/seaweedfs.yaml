@@ -70,7 +70,8 @@ spec:
               path: /        # Change from /status to /
               port: 8333
             initialDelaySeconds: 15
-
+            periodSeconds: 15
+            
         admin:
           enabled: true
           port: 23646
