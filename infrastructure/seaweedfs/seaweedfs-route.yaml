@@ -12,7 +12,7 @@ metadata:
 spec:
   parentRefs:
     - name: cilium-gateway
-      namespace: kube-system
+      namespace: cilium-secrets
       sectionName: http
   hostnames:
     - "seaweedfs.lab.lan"
@@ -38,7 +38,7 @@ metadata:
 spec:
   parentRefs:
     - name: cilium-gateway
-      namespace: kube-system
+      namespace: cilium-secrets
       sectionName: http
   hostnames:
     - "s3.lab.lan"
