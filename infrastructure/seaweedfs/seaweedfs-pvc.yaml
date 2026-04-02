@@ -37,6 +37,6 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 7Ti
+      storage: 8Ti
   volumeName: seaweedfs-nfs-pv
   storageClassName: ""       # Empty string = bind to the manually created PV above
