@@ -28,6 +28,7 @@ spec:
           registrationTokenKey: "runner-token"
           
         secret:
+          create: false
           name: gitlab-runner-secret
           key: runner-token
 
