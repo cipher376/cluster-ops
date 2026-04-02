@@ -1,0 +1,53 @@
+---
+# =============================================================================
+# HTTPRoute — seaweedfs.lab.lan → WebUI
+# Add to local DNS: seaweedfs.lab.lan → Gateway LB IP
+#   kubectl get gateway lab-gateway -n kube-system
+# =============================================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: seaweedfs-ui
+  namespace: seaweedfs
+spec:
+  parentRefs:
+    - name: lab-gateway
+      namespace: kube-system
+      sectionName: http
+  hostnames:
+    - "seaweedfs.lab.lan"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: seaweedfs-webui   # Verify with: kubectl get svc -n seaweedfs
+          namespace: seaweedfs
+          port: 9001
+---
+# =============================================================================
+# HTTPRoute — S3 API endpoint
+# Add to local DNS: s3.lab.lan → Gateway LB IP
+# =============================================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: seaweedfs-s3
+  namespace: seaweedfs
+spec:
+  parentRefs:
+    - name: lab-gateway
+      namespace: kube-system
+      sectionName: http
+  hostnames:
+    - "s3.lab.lan"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: seaweedfs-filer   # Verify with: kubectl get svc -n seaweedfs
+          namespace: seaweedfs
+          port: 8333

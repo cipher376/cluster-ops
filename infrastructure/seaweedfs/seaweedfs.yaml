@@ -1,0 +1,118 @@
+---
+# =============================================================================
+# ArgoCD Application — SeaweedFS via Helm
+# =============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: seaweedfs
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: seaweedfs
+    repoURL: https://seaweedfs.github.io/seaweedfs/helm
+    targetRevision: "*"
+    helm:
+      values: |
+        # -------------------------------------------------------------------
+        # Global settings
+        # -------------------------------------------------------------------
+        global:
+          createClusterRole: true
+          imageName: chrislusf/seaweedfs
+          imageTag: latest
+          imagePullPolicy: IfNotPresent
+          # Pull S3 credentials from the ESO-managed secret
+          extraEnvVars:
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-credentials
+                  key: s3_access_key
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-credentials
+                  key: s3_secret_key
+
+        # -------------------------------------------------------------------
+        # Master — coordinates volume servers
+        # -------------------------------------------------------------------
+        master:
+          enabled: true
+          replicas: 1
+          port: 9333
+          grpcPort: 19333
+          defaultReplication: "000"  # Single copy — change to "001" for 2 copies
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+
+        # -------------------------------------------------------------------
+        # Volume — stores actual data blobs
+        # -------------------------------------------------------------------
+        volume:
+          enabled: true
+          replicas: 1
+          port: 8080
+          grpcPort: 18080
+          dataDirs:
+            - name: data
+              type: persistentVolumeClaim
+              claimName: seaweedfs-nfs-pvc
+              maxVolumes: 0    # 0 = no limit
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+
+        # -------------------------------------------------------------------
+        # Filer — provides POSIX-like filesystem layer over volume servers
+        # -------------------------------------------------------------------
+        filer:
+          enabled: true
+          replicas: 1
+          port: 8888
+          grpcPort: 18888
+          s3:
+            enabled: true
+            port: 8333
+            httpsPort: 0
+            allowEmptyFolder: false
+            enableAuth: true
+            existingConfigSecret: seaweedfs-credentials
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+
+        # -------------------------------------------------------------------
+        # S3 Gateway — exposes S3-compatible API via filer
+        # -------------------------------------------------------------------
+        s3:
+          enabled: true
+          port: 8333
+          httpsPort: 0
+          allowEmptyFolder: false
+          enableAuth: true
+          existingConfigSecret: seaweedfs-credentials
+          domainName: "seaweedfs.lab.lan"
+
+        # -------------------------------------------------------------------
+        # WebUI
+        # -------------------------------------------------------------------
+        webUI:
+          enabled: true
+          port: 9001
+          service:
+            type: ClusterIP   # Exposed via HTTPRoute below
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: seaweedfs
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

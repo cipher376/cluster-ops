@@ -1,0 +1,42 @@
+---
+# =============================================================================
+# PersistentVolume — NFS backed storage on prodesk-node-02 ZFS pool
+# Create the directory first on prodesk-node-02:
+#   mkdir -p /mnt/pve/Cluster-Models/seaweedfs-data
+#   chown 1000:1000 /mnt/pve/Cluster-Models/seaweedfs-data
+# And ensure it is exported in /etc/exports:
+#   /mnt/pve/Cluster-Models/seaweedfs-data 172.16.0.0/24(rw,sync,no_subtree_check,no_root_squash)
+# =============================================================================
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: seaweedfs-nfs-pv
+spec:
+  capacity:
+    storage: 7Ti
+  accessModes:
+    - ReadWriteMany          # SeaweedFS volume/filer nodes can all write
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.16.0.15      # prodesk-node-02
+    path: /HDD-8Tb/models
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+    - retrans=2
+    - timeo=600
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seaweedfs-nfs-pvc
+  namespace: seaweedfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 7Ti
+  volumeName: seaweedfs-nfs-pv
+  storageClassName: ""       # Empty string = bind to the manually created PV above
