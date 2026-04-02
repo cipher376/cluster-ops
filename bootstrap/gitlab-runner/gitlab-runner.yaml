@@ -25,10 +25,12 @@ spec:
         # This matches the 'target.name' in your ExternalSecret manifest
         runners:
           secret: gitlab-runner-secret
+          registrationTokenKey: "runner-token"
+          
         secret:
           name: gitlab-runner-secret
           key: runner-token
-          
+
           config: |
             [[runners]]
               request_concurrency = 2
