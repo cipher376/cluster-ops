@@ -15,99 +15,60 @@ spec:
     targetRevision: "*"
     helm:
       values: |
-        # -------------------------------------------------------------------
-        # Global settings
-        # -------------------------------------------------------------------
         global:
           createClusterRole: true
           imageName: chrislusf/seaweedfs
           imageTag: latest
-          imagePullPolicy: IfNotPresent
-          # Pull S3 credentials from the ESO-managed secret
-          extraEnvVars:
-            - name: S3_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: seaweedfs-credentials
-                  key: s3_access_key
-            - name: S3_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: seaweedfs-credentials
-                  key: s3_secret_key
-
-        # -------------------------------------------------------------------
-        # Master — coordinates volume servers
-        # -------------------------------------------------------------------
+        
         master:
           enabled: true
           replicas: 1
-          port: 9333
-          grpcPort: 19333
-          defaultReplication: "000"  # Single copy — change to "001" for 2 copies
           persistence:
             enabled: true
             existingClaim: seaweedfs-nfs-pvc
+            subPath: "master"  # Keeps master metadata separate
 
-        # -------------------------------------------------------------------
-        # Volume — stores actual data blobs
-        # -------------------------------------------------------------------
         volume:
           enabled: true
           replicas: 1
-          port: 8080
-          grpcPort: 18080
-          dataDirs:
-            - name: data
-              type: persistentVolumeClaim
-              claimName: seaweedfs-nfs-pvc
-              maxVolumes: 0    # 0 = no limit
+          # Link to your 8TB ZFS pool
           persistence:
             enabled: true
             existingClaim: seaweedfs-nfs-pvc
+            subPath: "data"    # Keeps actual data blobs separate
+          maxVolumes: 250      # Better for an 8TB pool
 
-        # -------------------------------------------------------------------
-        # Filer — provides POSIX-like filesystem layer over volume servers
-        # -------------------------------------------------------------------
         filer:
           enabled: true
           replicas: 1
-          port: 8888
-          grpcPort: 18888
-          s3:
-            enabled: true
-            port: 8333
-            httpsPort: 0
-            allowEmptyFolder: false
-            enableAuth: true
-            existingConfigSecret: seaweedfs-credentials
           persistence:
             enabled: true
             existingClaim: seaweedfs-nfs-pvc
+            subPath: "filer"   # Keeps filer database separate
+          s3:
+            enabled: true
+            enableAuth: true
+            # This secret MUST contain a key named 'seaweedfs_s3_config'
+            existingConfigSecret: seaweedfs-credentials
 
-        # -------------------------------------------------------------------
-        # S3 Gateway — exposes S3-compatible API via filer
-        # -------------------------------------------------------------------
         s3:
           enabled: true
-          port: 8333
-          httpsPort: 0
-          allowEmptyFolder: false
           enableAuth: true
           existingConfigSecret: seaweedfs-credentials
           domainName: "seaweedfs.lab.lan"
 
-        # -------------------------------------------------------------------
-        # WebUI
-        # -------------------------------------------------------------------
         admin:
           enabled: true
           port: 23646
-          # Optional: add resources if your 8TB pool is very busy
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
+          # Set the UI credentials here
+          adminUser: "admin" 
+          # Use an environment variable from Vault for the password
+          extraEnvVars:
+            - name: SEAWEEDFS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-credentials
+                  key: adminPassword
           service:
             type: ClusterIP
   destination:
