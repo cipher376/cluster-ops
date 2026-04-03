@@ -8,10 +8,16 @@ spec:
   source:
     chart: gitlab-runner
     repoURL: https://charts.gitlab.io
-    targetRevision: 0.63.0
+    targetRevision: 0.64.0
     helm:
       values: |
         gitlabUrl: "http://172.16.0.102"
+
+        # Use Ubuntu image to avoid probe issues
+        image:
+          registry: registry.gitlab.com
+          image: gitlab-org/gitlab-runner
+          tag: ubuntu-v16.10.0
 
         # --- RBAC Configuration ---
         rbac:
@@ -19,6 +25,22 @@ spec:
         serviceAccount:
           create: true
           name: gitlab-runner
+        
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          exec:
+            command:
+            - /usr/bin/pgrep
+            - gitlab-runner
+
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          exec:
+            command:
+            - /usr/bin/pgrep
+            - gitlab-runner
 
         # Tolerations for the runner MANAGER pod (not job pods)
         nodeSelector:
