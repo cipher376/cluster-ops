@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dcgm-exporter
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: dcgm-exporter
+    repoURL: https://nvidia.github.io/k8s-device-plugin
+    targetRevision: 3.4.1 
+    helm:
+      values: |
+        # Allow the exporter to run on your GPU node
+        tolerations:
+          - key: "dedicated"
+            operator: "Exists"
+            effect: "NoSchedule"
+          - key: "dedicated"
+            operator: "Exists"
+            effect: "NoExecute"
+
+        # This tells your Prometheus stack to start scraping
+        serviceMonitor:
+          enabled: true
+          interval: 15s
+          # IMPORTANT: Match this to your Prometheus 'serviceMonitorSelector'
+          labels:
+            release: monitoring 
+
+        # Connects to the GPU via the same drivers the Device Plugin uses
+        runtimeClassName: nvidia 
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
