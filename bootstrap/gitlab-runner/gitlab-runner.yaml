@@ -29,55 +29,47 @@ spec:
           config: |
             [[runners]]
               request_concurrency = 2
-              
-              # Increase this to 600 (10 minutes) to allow for the heavy pull
               poll_timeout = 600
-              
-              # Optional: Check every 5 seconds instead of 3 to reduce API noise
               poll_interval = 5
-              
               image_pull_policy = "if-not-present"
-
+            
               [runners.kubernetes]
-                namespace           = "gitlab-runner"
-                image               = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
-                privileged          = true
-                cpu_limit           = "4"
-                memory_limit        = "8Gi"
-
+                namespace = "gitlab-runner"
+                image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+                privileged = true
+                cpu_limit = "4"
+                memory_limit = "8Gi"
                 service_account = "gitlab-runner"
-                
                 bearer_token_overwrite_allowed = false
-                
                 service_account_overwrite_allowed = "gitlab-runner"
-
+            
                 [runners.kubernetes.resource_requirements]
                   [runners.kubernetes.resource_requirements.limits]
                     "nvidia.com/gpu" = "1"
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
-
+            
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
-
+            
               [[runners.kubernetes.tolerations]]
                 key      = "dedicated"
                 operator = "Equal"
                 value    = "gpu"
                 effect   = "NoExecute"
-
+            
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
                 name       = "nvidia-libs"
                 mount_path = "/usr/local/nvidia"
                 read_only  = true
                 host_path  = "/lib/x86_64-linux-gnu"
-
+            
               # HuggingFace model cache
               [[runners.kubernetes.volumes.empty_dir]]
                 name       = "model-cache"
                 mount_path = "/root/.cache/huggingface"
-
+            
               # NFS checkpoint storage
               [[runners.kubernetes.volumes.host_path]]
                 name       = "nfs-checkpoints"
