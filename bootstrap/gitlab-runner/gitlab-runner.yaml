@@ -90,7 +90,7 @@ spec:
               operator: "Equal"
               value: "gpu"
               effect: "NoExecute"
-              
+
           config: |
             [[runners]]
               request_concurrency = 2
@@ -118,14 +118,6 @@ spec:
               # Job pod node selector
               [runners.kubernetes.node_selector]
                 hardware = "gpu"
-
-              # Job pod tolerations — must be in TOML, not Helm values
-
-              [[runners.kubernetes.tolerations]]
-                key      = "dedicated"
-                operator = "Equal"
-                value    = "gpu"
-                effect   = "NoExecute"
 
               # Runner home — persists system ID on the GPU node host
               [[runners.kubernetes.volumes.host_path]]
