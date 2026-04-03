@@ -27,6 +27,12 @@ spec:
             value: "gpu"
             effect: "NoSchedule"
 
+          - key      : "dedicated"
+            operator : "Equal"
+            value    : "gpu"
+            effect   : "NoExecute"
+
+
         runners:
           secret: gitlab-runner-secret
           registrationTokenKey: "runner-registration-token"
