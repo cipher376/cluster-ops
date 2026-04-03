@@ -63,7 +63,7 @@ spec:
           registrationTokenKey: "runner-registration-token"
           runnerTokenKey: "runner-token"
           executor: kubernetes
-
+          state_file : "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
           kubernetes:
             nodeSelector:
                 hardware: "gpu"
@@ -85,8 +85,6 @@ spec:
               poll_interval = 5
               image_pull_policy = "if-not-present"
               
-              state_file = "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
-              homeDirectory = "/home/gitlab-runner"
 
               [runners.kubernetes]
                 namespace           = "gitlab-runner"
@@ -105,9 +103,10 @@ spec:
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
               
-              [[runners.kubernetes.volumes.empty_dir]]
+              [[runners.kubernetes.volumes.host_path]]
                 name = "runner-home"
                 mount_path = "/home/gitlab-runner/.gitlab-runner"
+                host_path  = "/mnt/training-cache"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
