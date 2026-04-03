@@ -116,8 +116,8 @@ spec:
 
               # Job pod tolerations — must be in TOML, not Helm values
               [runners.kubernetes.tolerations]
-                dedicated = \"gpu:NoSchedule:""\"
-                dedicated = \"gpu:NoExecute:""\"
+                dedicated = 'gpu:NoSchedule:""'
+                dedicated = 'gpu:NoExecute:""'
 
               
 
