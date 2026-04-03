@@ -15,20 +15,21 @@ spec:
 
         # --- RBAC Configuration ---
         rbac:
-          create: false
+          create: true  # Let the chart create RBAC resources
         serviceAccount:
-          create: false
+          create: true  # Create the service account
           name: gitlab-runner
+          # Annotations if needed
+          # annotations: {}
         
-        serviceAccountName: "gitlab-runner"
-
+        # Remove this duplicate line - it's not needed
+        # serviceAccountName: "gitlab-runner"
 
         runners:
           secret: gitlab-runner-secret
-          serviceAccountName: "gitlab-runner"
-          # registrationTokenKey is not valid in 18.x — use runnerToken instead
-          # The chart reads the 'runner-token' key from the secret named above
-
+          # Remove this - the runner's config will handle it
+          # serviceAccountName: "gitlab-runner"
+          
           registrationTokenKey: "runner-registration-token"
           runnerTokenKey: "runner-token"
           executor: kubernetes
@@ -44,11 +45,16 @@ spec:
                 cpu_limit           = "4"
                 memory_limit        = "8Gi"
 
+                # ONLY this line is needed in the runner config
                 service_account = "gitlab-runner"
-                service_account_name = "gitlab-runner"
-
+                
+                # Remove this - it's not a valid config field
+                # service_account_name = "gitlab-runner"
                 
                 bearer_token_overwrite_allowed = false
+                
+                # Allow the runner to overwrite service account (optional)
+                service_account_overwrite_allowed = "gitlab-runner"
 
                 [runners.kubernetes.resource_requirements]
                   [runners.kubernetes.resource_requirements.limits]
@@ -65,19 +71,19 @@ spec:
                 value    = "gpu"
                 effect   = "NoExecute"
 
-              # NVIDIA libs from host — required since you're using host driver passthrough
+              # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
                 name       = "nvidia-libs"
                 mount_path = "/usr/local/nvidia"
                 read_only  = true
                 host_path  = "/lib/x86_64-linux-gnu"
 
-              # HuggingFace model cache — ephemeral per job
+              # HuggingFace model cache
               [[runners.kubernetes.volumes.empty_dir]]
                 name       = "model-cache"
                 mount_path = "/root/.cache/huggingface"
 
-              # NFS checkpoint storage on prodesk-node-02 ZFS pool
+              # NFS checkpoint storage
               [[runners.kubernetes.volumes.host_path]]
                 name       = "nfs-checkpoints"
                 mount_path = "/models/checkpoints"
