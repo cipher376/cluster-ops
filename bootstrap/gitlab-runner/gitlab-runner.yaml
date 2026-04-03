@@ -45,7 +45,7 @@ spec:
                 memory_limit        = "8Gi"
 
                 service_account = "gitlab-runner"
-                serviceAccountName = "gitlab-runner"
+                service_account_name = "gitlab-runner"
 
                 
                 bearer_token_overwrite_allowed = false
