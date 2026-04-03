@@ -18,8 +18,7 @@ spec:
           registry: registry.gitlab.com
           image: gitlab-org/gitlab-runner
           tag: ubuntu-v16.10.0
-        
-        homeDirectory: "/home/gitlab-runner"
+
 
         # --- RBAC Configuration ---
         rbac:
@@ -85,6 +84,9 @@ spec:
               poll_timeout = 600
               poll_interval = 5
               image_pull_policy = "if-not-present"
+              
+              state_file= "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
+              homeDirectory= "/home/gitlab-runner"
 
               [runners.kubernetes]
                 namespace           = "gitlab-runner"
@@ -105,7 +107,7 @@ spec:
               
               [[runners.kubernetes.volumes.empty_dir]]
                 name = "runner-home"
-                mount_path = "/home/gitlab-runner"
+                mount_path = "/home/gitlab-runner/.gitlab-runner"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
