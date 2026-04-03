@@ -78,18 +78,7 @@ spec:
           runnerTokenKey: "runner-token"
           executor: kubernetes
 
-          nodeSelector:
-            hardware: "gpu"
           
-          nodeTolerations:
-            - key: "dedicated"
-              operator: "Equal"
-              value: "gpu"
-              effect: "NoSchedule"
-            - key: "dedicated"
-              operator: "Equal"
-              value: "gpu"
-              effect: "NoExecute"
 
           config: |
             [[runners]]
@@ -114,12 +103,14 @@ spec:
                     "nvidia.com/gpu" = "1"
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
-                tolerations = [{ key = "dedicated", operator = "Equal", value = "gpu", effect = "NoExecute" }]
 
               # Job pod node selector
               [runners.kubernetes.node_selector]
                 hardware = "gpu"
 
+              [runners.kubernetes.node_tolerations]
+                dedicated = gpu:NoExecute:""
+              
               # Runner home — persists system ID on the GPU node host
               [[runners.kubernetes.volumes.host_path]]
                 name       = "runner-home"
