@@ -115,12 +115,12 @@ spec:
                 hardware = "gpu"
 
               # Job pod tolerations — must be in TOML, not Helm values
-              [[runners.kubernetes.tolerations]]
-                dedicated = 'gpu:NoSchedule:""'
-              [[runners.kubernetes.tolerations]]
-                dedicated = 'gpu:NoExecute:""'
 
-              
+              [[runners.kubernetes.tolerations]]
+                key      = "dedicated"
+                operator = "Equal"
+                value    = "gpu"
+                effect   = "NoExecute"
 
               # Runner home — persists system ID on the GPU node host
               [[runners.kubernetes.volumes.host_path]]
