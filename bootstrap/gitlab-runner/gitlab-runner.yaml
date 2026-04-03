@@ -56,8 +56,17 @@ spec:
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
 
-               [runners.kubernetes.node_tolerations]
-                  "dedicated=gpu" = "NoExecute"
+              [[runners.kubernetes.tolerations]]
+                key      = "dedicated"
+                operator = "Equal"
+                value    = "gpu"
+                effect   = "NoExecute"
+              
+              [[runners.kubernetes.tolerations]]
+               key      = "dedicated"
+               operator = "Equal"
+               value    = "gpu"
+               effect   = "NoSchedule"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
