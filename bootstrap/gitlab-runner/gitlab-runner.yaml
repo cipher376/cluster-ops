@@ -102,6 +102,10 @@ spec:
                     "nvidia.com/gpu" = "1"
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
+              
+              [[runners.kubernetes.volumes.empty_dir]]
+                name = "runner-home"
+                mount_path = "/home/gitlab-runner"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
