@@ -20,7 +20,7 @@ spec:
           create: false
           name: gitlab-runner
         
-        serviceAccountName = "gitlab-runner"
+        serviceAccountName: "gitlab-runner"
 
 
         runners:
