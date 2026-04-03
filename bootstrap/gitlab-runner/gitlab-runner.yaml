@@ -114,6 +114,7 @@ spec:
                     "nvidia.com/gpu" = "1"
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
+                tolerations = [{ key = "dedicated", operator = "Equal", value = "gpu", effect = "NoExecute" }]
 
               # Job pod node selector
               [runners.kubernetes.node_selector]
