@@ -21,7 +21,7 @@ spec:
         envVars:
           - name: HOME
             value: /home/gitlab-runner
-            
+
         # --- RBAC ---
         rbac:
           create: true
@@ -77,6 +77,19 @@ spec:
           registrationTokenKey: "runner-registration-token"
           runnerTokenKey: "runner-token"
           executor: kubernetes
+
+          nodeSelector:
+            hardware: "gpu"
+
+          tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoSchedule"
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoExecute"
 
           config: |
             [[runners]]
