@@ -20,6 +20,16 @@ spec:
             operator: "Exists"
             effect: "NoExecute"
         
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: "hardware"
+                      operator: "In"
+                      values:
+                        - "gpu"
+        
         podAnnotations:
           prometheus.io/scrape: "true"
           prometheus.io/port: "9400"
