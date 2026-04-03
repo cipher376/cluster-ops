@@ -18,6 +18,10 @@ spec:
           image: gitlab-org/gitlab-runner
           tag: ubuntu-v16.10.0
 
+        envVars:
+          - name: HOME
+            value: /home/gitlab-runner
+            
         # --- RBAC ---
         rbac:
           create: true
