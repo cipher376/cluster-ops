@@ -19,11 +19,10 @@ spec:
         serviceAccount:
           create: false
           name: gitlab-runner
+        
+        serviceAccountName = "gitlab-runner"
 
-        # --- Secret Configuration ---
-        # GitLab 18.x uses authentication tokens (glrt- prefix) — no registration token
-        # 'secret' points to the K8s secret Vault Agent injects at runtime
-        # 'runnerToken' tells the chart to read the 'runner-token' key from that secret
+
         runners:
           secret: gitlab-runner-secret
           serviceAccountName: "gitlab-runner"
@@ -46,6 +45,8 @@ spec:
                 memory_limit        = "8Gi"
 
                 service_account = "gitlab-runner"
+                serviceAccountName = "gitlab-runner"
+
                 
                 bearer_token_overwrite_allowed = false
 
