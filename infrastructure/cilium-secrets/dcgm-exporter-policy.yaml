@@ -6,7 +6,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: dcgm-exporter
+      name: dcgm-exporter
   ingress:
   - fromEndpoints:
     - matchLabels:
