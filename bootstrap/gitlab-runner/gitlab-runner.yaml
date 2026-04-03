@@ -109,7 +109,7 @@ spec:
                 hardware = "gpu"
 
               [runners.kubernetes.node_tolerations]
-                dedicated = gpu:NoExecute:""
+                "dedicated=gpu" = "NoExecute"
               
               # Runner home — persists system ID on the GPU node host
               [[runners.kubernetes.volumes.host_path]]
