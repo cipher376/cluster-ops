@@ -1,0 +1,21 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-to-dcgm-exporter
+  namespace: monitoring
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: dcgm-exporter
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        # This allows any pod in the monitoring namespace (like Prometheus)
+        "io.kubernetes.pod.namespace": monitoring
+    - matchLabels:
+        # This allows your test pods from the default namespace
+        "io.kubernetes.pod.namespace": default
+    toPorts:
+    - ports:
+      - port: "9400"
+        protocol: TCP
