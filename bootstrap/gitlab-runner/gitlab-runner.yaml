@@ -20,15 +20,18 @@ spec:
           create: true
           name: gitlab-runner
 
+        # Tolerations for the runner MANAGER pod (not job pods)
+        tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoSchedule"
+
         runners:
           secret: gitlab-runner-secret
           registrationTokenKey: "runner-registration-token"
           runnerTokenKey: "runner-token"
           executor: kubernetes
-          tolerations:
-            - key: "dedicated"
-              operator: "Exists"
-              effect: "NoExecute"
 
           config: |
             [[runners]]
@@ -38,13 +41,13 @@ spec:
               image_pull_policy = "if-not-present"
 
               [runners.kubernetes]
-                namespace = "gitlab-runner"
-                image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
-                privileged = true
-                cpu_limit = "4"
-                memory_limit = "8Gi"
-                service_account = "gitlab-runner"
-                bearer_token_overwrite_allowed = false
+                namespace           = "gitlab-runner"
+                image               = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+                privileged          = true
+                cpu_limit           = "4"
+                memory_limit        = "8Gi"
+                service_account     = "gitlab-runner"
+                bearer_token_overwrite_allowed    = false
                 service_account_overwrite_allowed = "gitlab-runner"
 
                 [runners.kubernetes.resource_requirements]
@@ -53,20 +56,17 @@ spec:
                   [runners.kubernetes.resource_requirements.requests]
                     "nvidia.com/gpu" = "1"
 
+              # Node selector — job pods land on GPU node only
               [[runners.kubernetes.node_selector]]
                 hardware = "gpu"
 
+              # Tolerations for JOB PODS — must be in TOML config block,
+              # not in Helm values runners.tolerations
               [[runners.kubernetes.tolerations]]
                 key      = "dedicated"
                 operator = "Equal"
                 value    = "gpu"
-                effect   = "NoExecute"
-              
-              [[runners.kubernetes.tolerations]]
-               key      = "dedicated"
-               operator = "Equal"
-               value    = "gpu"
-               effect   = "NoSchedule"
+                effect   = "NoSchedule"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
@@ -75,7 +75,7 @@ spec:
                 read_only  = true
                 host_path  = "/lib/x86_64-linux-gnu"
 
-              # HuggingFace model cache
+              # HuggingFace model cache — ephemeral per job
               [[runners.kubernetes.volumes.empty_dir]]
                 name       = "model-cache"
                 mount_path = "/root/.cache/huggingface"
