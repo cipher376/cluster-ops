@@ -77,6 +77,14 @@ spec:
                 operator : "Equal"
                 value    : "gpu"
                 effect   : "NoExecute"
+          # Add under the helm values in your ArgoCD manifest
+          extraVolumes:
+            - name: runner-state
+              emptyDir: {}
+  
+          extraVolumeMounts:
+            - name: runner-state
+              mountPath: /home/gitlab-runner/.gitlab-runner
 
           config: |
             [[runners]]
