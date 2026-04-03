@@ -115,13 +115,13 @@ spec:
                 hardware = "gpu"
 
               # Job pod tolerations — must be in TOML, not Helm values
-              [[runners.kubernetes.tolerations]]
+              [runners.kubernetes.tolerations]
                 key      = "dedicated"
                 operator = "Equal"
                 value    = "gpu"
                 effect   = "NoSchedule"
 
-              [[runners.kubernetes.tolerations]]
+              [runners.kubernetes.tolerations]
                 key      = "dedicated"
                 operator = "Equal"
                 value    = "gpu"
