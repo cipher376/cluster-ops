@@ -81,15 +81,9 @@ spec:
           nodeSelector:
             hardware: "gpu"
 
-          tolerations:
-          - key: "dedicated"
-            operator: "Equal"
-            value: "gpu"
-            effect: "NoSchedule"
-          - key: "dedicated"
-            operator: "Equal"
-            value: "gpu"
-            effect: "NoExecute"
+          nodeTolerations:
+            dedicated=gpu:NoSchedule: ""
+            dedicated=gpu:NoExecute: ""
 
           config: |
             [[runners]]
@@ -117,7 +111,7 @@ spec:
                     "nvidia.com/gpu" = "1"
 
               # Job pod node selector
-              [[runners.kubernetes.node_selector]]
+              [runners.kubernetes.node_selector]
                 hardware = "gpu"
 
               # Job pod tolerations — must be in TOML, not Helm values
