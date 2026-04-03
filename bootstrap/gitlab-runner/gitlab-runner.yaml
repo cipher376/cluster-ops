@@ -136,19 +136,7 @@ spec:
                 mount_path = "/models/checkpoints"
                 host_path  = "/mnt/training-cache/checkpoints"
                 read_only  = false
-
-              # Inject SeaweedFS Credentials
-              [runners.kubernetes.env_vars]
-                [[runners.kubernetes.env_vars]]
-                  name = "AWS_ACCESS_KEY_ID"
-                  value_from = { secret_key_ref = { name = "seaweedfs-credentials", key = "access_key" } }
-                
-                [[runners.kubernetes.env_vars]]
-                  name = "AWS_SECRET_ACCESS_KEY"
-                  value_from = { secret_key_ref = { name = "seaweedfs-credentials", key = "secret_key" } }
-                [[runners.kubernetes.env_vars]]
-                  name = "S3_ENDPOINT_URL"
-                  value_from = { secret_key_ref = { name = "seaweedfs-credentials", key = "endpoint_url" } }
+     
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab-runner
