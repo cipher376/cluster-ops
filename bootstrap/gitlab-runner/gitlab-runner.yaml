@@ -80,11 +80,17 @@ spec:
 
           nodeSelector:
             hardware: "gpu"
-
+          
           nodeTolerations:
-            dedicated=gpu:NoSchedule: ""
-            dedicated=gpu:NoExecute: ""
-
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
+              
           config: |
             [[runners]]
               request_concurrency = 2
@@ -93,7 +99,6 @@ spec:
               image_pull_policy = "if-not-present"
               # Persists system ID for the lifetime of the pod
               state_file = "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
-
               [runners.kubernetes]
                 namespace                         = "gitlab-runner"
                 image                             = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
