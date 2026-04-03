@@ -19,14 +19,20 @@ spec:
           - key: "dedicated"
             operator: "Exists"
             effect: "NoExecute"
+        
+        podAnnotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "9400"
+          prometheus.io/path: "/metrics"
 
         # This tells your Prometheus stack to start scraping
         serviceMonitor:
-          enabled: true
-          interval: 15s
-          # IMPORTANT: Match this to your Prometheus 'serviceMonitorSelector'
-          labels:
-            release: monitoring 
+          enabled: false
+
+        # Ensure the service is created so Prometheus can find it
+        service:
+          type: ClusterIP
+          port: 9400
 
         # Connects to the GPU via the same drivers the Device Plugin uses
         runtimeClassName: nvidia 

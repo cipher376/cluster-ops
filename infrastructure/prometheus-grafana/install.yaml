@@ -91,6 +91,9 @@ data:
         target_label: __address__
       - action: labelmap
         regex: __meta_kubernetes_pod_label_(.+)
+    - job_name: 'nvidia-dcgm'
+      static_configs:
+        - targets: ['dcgm-exporter.monitoring.svc.cluster.local:9400']
 ---
 apiVersion: apps/v1
 kind: Deployment
