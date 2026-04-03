@@ -18,6 +18,8 @@ spec:
           registry: registry.gitlab.com
           image: gitlab-org/gitlab-runner
           tag: ubuntu-v16.10.0
+        
+        homeDirectory: "/home/gitlab-runner"
 
         # --- RBAC Configuration ---
         rbac:
@@ -94,7 +96,6 @@ spec:
                 bearer_token_overwrite_allowed    = false
                 service_account_overwrite_allowed = "gitlab-runner"
 
-                # tolerations = [{ key = "dedicated", operator = "Equal", value = "gpu", effect = "NoExecute"" },{ key = "dedicated", operator = "Equal", value = "gpu", effect = "NoSchedule"" }]
 
                 [runners.kubernetes.resource_requirements]
                   [runners.kubernetes.resource_requirements.limits]
