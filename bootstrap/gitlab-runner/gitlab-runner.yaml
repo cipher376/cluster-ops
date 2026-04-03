@@ -28,6 +28,9 @@ spec:
           secret: gitlab-runner-secret
           # registrationTokenKey is not valid in 18.x — use runnerToken instead
           # The chart reads the 'runner-token' key from the secret named above
+          
+          registrationTokenKey: "runner-registration-token"
+          runnerTokenKey: "runner-token"
           executor: kubernetes
 
           config: |
