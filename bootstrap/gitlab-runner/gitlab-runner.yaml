@@ -15,21 +15,13 @@ spec:
 
         # --- RBAC Configuration ---
         rbac:
-          create: true  # Let the chart create RBAC resources
+          create: true
         serviceAccount:
-          create: true  # Create the service account
+          create: true
           name: gitlab-runner
-          # Annotations if needed
-          # annotations: {}
-        
-        # Remove this duplicate line - it's not needed
-        # serviceAccountName: "gitlab-runner"
 
         runners:
           secret: gitlab-runner-secret
-          # Remove this - the runner's config will handle it
-          # serviceAccountName: "gitlab-runner"
-          
           registrationTokenKey: "runner-registration-token"
           runnerTokenKey: "runner-token"
           executor: kubernetes
@@ -37,6 +29,14 @@ spec:
           config: |
             [[runners]]
               request_concurrency = 2
+              
+              # Increase this to 600 (10 minutes) to allow for the heavy pull
+              poll_timeout = 600
+              
+              # Optional: Check every 5 seconds instead of 3 to reduce API noise
+              poll_interval = 5
+              
+              image_pull_policy = "if-not-present"
 
               [runners.kubernetes]
                 namespace           = "gitlab-runner"
@@ -45,15 +45,10 @@ spec:
                 cpu_limit           = "4"
                 memory_limit        = "8Gi"
 
-                # ONLY this line is needed in the runner config
                 service_account = "gitlab-runner"
-                
-                # Remove this - it's not a valid config field
-                # service_account_name = "gitlab-runner"
                 
                 bearer_token_overwrite_allowed = false
                 
-                # Allow the runner to overwrite service account (optional)
                 service_account_overwrite_allowed = "gitlab-runner"
 
                 [runners.kubernetes.resource_requirements]
