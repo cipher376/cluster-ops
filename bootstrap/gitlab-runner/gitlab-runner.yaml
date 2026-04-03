@@ -33,6 +33,20 @@ spec:
           runnerTokenKey: "runner-token"
           executor: kubernetes
 
+          kubernetes:
+            nodeSelector:
+                hardware: "gpu"
+            node_tolerations:
+              - key      : "dedicated"
+                operator : "Equal"
+                value    : "gpu"
+                effect   : "NoSchedule"
+
+              - key      : "dedicated"
+                operator : "Equal"
+                value    : "gpu"
+                effect   : "NoExecute"
+
           config: |
             [[runners]]
               request_concurrency = 2
@@ -57,16 +71,16 @@ spec:
                     "nvidia.com/gpu" = "1"
 
               # Node selector — job pods land on GPU node only
-              [[runners.kubernetes.node_selector]]
-                hardware = "gpu"
+              # [[runners.kubernetes.node_selector]]
+              #   hardware = "gpu"
 
               # Tolerations for JOB PODS — must be in TOML config block,
               # not in Helm values runners.tolerations
-              [[runners.kubernetes.tolerations]]
-                key      = "dedicated"
-                operator = "Equal"
-                value    = "gpu"
-                effect   = "NoSchedule"
+              # [[runners.kubernetes.tolerations]]
+              #   key      = "dedicated"
+              #   operator = "Equal"
+              #   value    = "gpu"
+              #   effect   = "NoSchedule"
 
               # NVIDIA libs from host
               [[runners.kubernetes.volumes.host_path]]
