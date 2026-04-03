@@ -21,6 +21,8 @@ spec:
           name: gitlab-runner
 
         # Tolerations for the runner MANAGER pod (not job pods)
+        nodeSelector:
+                hardware: "gpu"
         tolerations:
           - key: "dedicated"
             operator: "Equal"
