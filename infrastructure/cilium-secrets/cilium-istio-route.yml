@@ -49,7 +49,7 @@ spec:
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-envoy-to-istio
+  name: allow-ingress-to-istio
   namespace: istio-system
 spec:
   endpointSelector:
@@ -58,8 +58,24 @@ spec:
   ingress:
   - fromEndpoints:
     - matchLabels:
-        "k8s:app": "cilium-envoy" # Matches your cilium-envoy DaemonSet
+        "reserved:ingress": ""
     toPorts:
     - ports:
       - port: "8080"
         protocol: TCP
+
+---
+kind: ReferenceGrant
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: allow-cilium-to-istio
+  namespace: istio-system # Namespace of the Service
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: kube-system # Namespace of your Cilium Gateway
+  to:
+  - group: ""
+    kind: Service
+    name: istio-ingressgateway
