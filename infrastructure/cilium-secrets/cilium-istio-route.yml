@@ -45,3 +45,21 @@ spec:
   selector:
     # Cilium Gateway Envoy pods label
     io.cilium.gateway/name: cilium-gateway-istio
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-envoy-to-istio
+  namespace: istio-system
+spec:
+  endpointSelector:
+    matchLabels:
+      app: istio-ingressgateway
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        "k8s:app": "cilium-envoy" # Matches your cilium-envoy DaemonSet
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
