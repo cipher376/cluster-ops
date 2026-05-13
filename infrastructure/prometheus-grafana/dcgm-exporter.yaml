@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dcgm-exporter
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: dcgm-exporter
+    repoURL: https://nvidia.github.io/dcgm-exporter/helm-charts
+    targetRevision: 4.8.1 
+    helm:
+      values: |
+        # Allow the exporter to run on your GPU node
+        tolerations:
+          - key: "dedicated"
+            operator: "Exists"
+            effect: "NoSchedule"
+          - key: "dedicated"
+            operator: "Exists"
+            effect: "NoExecute"
+        
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: "hardware"
+                      operator: "In"
+                      values:
+                        - "gpu"
+        
+        podAnnotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "9400"
+          prometheus.io/path: "/metrics"
+
+        # This tells your Prometheus stack to start scraping
+        serviceMonitor:
+          enabled: false
+
+        # Ensure the service is created so Prometheus can find it
+        service:
+          type: ClusterIP
+          port: 9400
+
+        # Connects to the GPU via the same drivers the Device Plugin uses
+        runtimeClassName: nvidia 
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

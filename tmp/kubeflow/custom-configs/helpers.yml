@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kubeflow-route
+  namespace: istio-system
+spec:
+  parentRefs:
+    - name: cilium-gateway
+      namespace: kube-system # Reference your existing Cilium Gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: istio-ingressgateway # Point to the Kubeflow entry point
+          port: 80
+---
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: access-seaweedfs
+  namespace: ml-developer
+spec:
+  desc: "Allow access to SeaweedFS S3"
+  selector:
+    matchLabels:
+      access-seaweedfs: "true"
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: seaweedfs-s3-credentials
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: seaweedfs-s3-credentials
+          key: AWS_SECRET_ACCESS_KEY
+    - name: S3_ENDPOINT
+      value: "s3.seaweedfs.internal.ncs-cloud.lan:8333"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: S3_USE_HTTPS
+      value: "0"

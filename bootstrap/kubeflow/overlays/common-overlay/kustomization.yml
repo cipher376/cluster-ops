@@ -1,0 +1,36 @@
+resources:
+# Cert-Manager
+- ../../upstream/26.03/common/cert-manager/overlays/kubeflow
+
+# Istio
+- ../../upstream/26.03/common/istio/istio-crds/base
+- ../../upstream/26.03/common/istio/istio-namespace/base
+- ../../upstream/26.03/common/istio/istio-install/overlays/oauth2-proxy
+
+# Oauth2-proxy
+- ../../upstream/26.03/common/oauth2-proxy/overlays/m2m-dex-only       # for all clusters
+
+# Dex
+- ../../upstream/26.03/common/dex/overlays/oauth2-proxy
+
+# KNative
+- ../../upstream/26.03/common/knative/knative-serving/overlays/gateways
+- ../../upstream/26.03/common/istio/cluster-local-gateway/base
+
+# Kubeflow namespace
+- ../../upstream/26.03/common/kubeflow-namespace/base
+# Kubeflow Roles
+- ../../upstream/26.03/common/kubeflow-roles/base
+# Kubeflow Istio Resources
+- ../../upstream/26.03/common/istio/kubeflow-istio-resources/base
+
+# User namespace
+- ../../upstream/26.03/common/user-namespace/base
+
+
+
+
+images:
+  - name: gcr.io/kubebuilder/kube-rbac-proxy
+    newName: registry.k8s.io/kubebuilder/kube-rbac-proxy
+    newTag: v0.16.0  # Or v0.18.0 for better security

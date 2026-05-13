@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-runner-bootstrap
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    targetRevision: HEAD
+    path: bootstrap/gitlab-runner
+    directory: 
+      recurse: true
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

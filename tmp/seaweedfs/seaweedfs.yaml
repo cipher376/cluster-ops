@@ -1,0 +1,98 @@
+---
+# =============================================================================
+# ArgoCD Application — SeaweedFS via Helm
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seaweedfs
+  labels:
+    name: seaweedfs
+    # Optional: If you use Pod Security Admissions
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: seaweedfs
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: seaweedfs
+    repoURL: https://seaweedfs.github.io/seaweedfs/helm
+    targetRevision: "*"
+    helm:
+      values: |
+        global:
+          createClusterRole: true
+          imageName: chrislusf/seaweedfs
+          imageTag: latest
+        
+        master:
+          enabled: true
+          replicas: 1
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+            subPath: "master"  # Keeps master metadata separate
+
+        volume:
+          enabled: true
+          replicas: 1
+          # Link to your 8TB ZFS pool
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+            subPath: "data"    # Keeps actual data blobs separate
+          maxVolumes: 250      # Better for an 8TB pool
+
+        filer:
+          enabled: true
+          replicas: 1
+          persistence:
+            enabled: true
+            existingClaim: seaweedfs-nfs-pvc
+            subPath: "filer"   # Keeps filer database separate
+          s3:
+            enabled: true
+            enableAuth: true
+            # This secret MUST contain a key named 'seaweedfs_s3_config'
+            existingConfigSecret: seaweedfs-credentials
+
+        s3:
+          enabled: true
+          enableAuth: true
+          existingConfigSecret: seaweedfs-credentials
+          domainName: "seaweedfs.lab.lan"
+          readinessProbe:
+            httpGet:
+              path: /status        # Change from /status to /
+              port: 8333
+            initialDelaySeconds: 15
+            periodSeconds: 15
+
+        admin:
+          enabled: true
+          port: 23646
+          # Set the UI credentials here
+          adminUser: "admin" 
+          # Use an environment variable from Vault for the password
+          extraEnvVars:
+            - name: SEAWEEDFS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-credentials
+                  key: adminPassword
+          service:
+            type: ClusterIP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: seaweedfs
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

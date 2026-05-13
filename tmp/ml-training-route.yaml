@@ -1,0 +1,19 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ml-training-route
+  namespace: default
+spec:
+  parentRefs:
+    - name: cilium-gateway
+      namespace: cilium-secrets
+  hostnames:
+    - "training.lab.lan" # This specifically matches the wildcard above
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: ml-training-svc
+          port: 8080

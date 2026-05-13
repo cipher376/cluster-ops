@@ -1,0 +1,19 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "default-deny-external"
+  namespace: default
+spec:
+  endpointSelector: {} # Selects all pods in the 'default' namespace
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": kube-system
+            "k8s:k8s-app": kube-dns
+    - toServices:
+        - k8sService:
+            serviceName: kube-dns
+            namespace: kube-system
+

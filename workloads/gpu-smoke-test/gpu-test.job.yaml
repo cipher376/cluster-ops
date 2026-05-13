@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpu-smoke-test
+  namespace: default
+spec:
+  template:
+    spec:
+      priorityClassName: system-node-critical
+      containers:
+      - name: cuda-check
+        image: pytorch/pytorch:latest
+        command: ["python3", "main.py"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1  # This triggers the Device Plugin
+      nodeSelector:
+        nvidia.com/gpu: "true" # Ensures it lands on the Legion
+      restartPolicy: Never
+  backoffLimit: 0

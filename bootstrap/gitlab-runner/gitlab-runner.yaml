@@ -1,0 +1,149 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-runner
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: gitlab-runner
+    repoURL: https://charts.gitlab.io
+    targetRevision: 0.64.0
+    helm:
+      values: |
+        gitlabUrl: "http://gitlab.ncs-cloud.lan"
+
+        image:
+          registry: registry.gitlab.com
+          image: gitlab-org/gitlab-runner
+          tag: ubuntu-v16.10.0
+
+        envVars:
+          - name: HOME
+            value: /home/gitlab-runner
+
+        # --- RBAC ---
+        rbac:
+          create: true
+        serviceAccount:
+          create: true
+          name: gitlab-runner
+
+        # --- Probes ---
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          exec:
+            command:
+              - /usr/bin/pgrep
+              - gitlab-runner
+
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          exec:
+            command:
+              - /usr/bin/pgrep
+              - gitlab-runner
+
+        # --- Manager pod scheduling ---
+        # Keeps the manager pod on the GPU node
+        nodeSelector:
+          hardware: "gpu"
+
+        tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoSchedule"
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoExecute"
+
+        # --- State file persistence ---
+        # Fixes: "Couldn't save new system ID on state file"
+        extraVolumes:
+          - name: runner-state
+            emptyDir: {}
+
+        extraVolumeMounts:
+          - name: runner-state
+            mountPath: /home/gitlab-runner/.gitlab-runner
+
+        # --- Runner config ---
+        runners:
+          secret: gitlab-runner-secret
+          registrationTokenKey: "runner-registration-token"
+          runnerTokenKey: "runner-token"
+          executor: kubernetes
+
+          
+
+          config: |
+            [[runners]]
+              request_concurrency = 2
+              poll_timeout = 600
+              poll_interval = 5
+              image_pull_policy = "if-not-present"
+              # Persists system ID for the lifetime of the pod
+              state_file = "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
+              [runners.kubernetes]
+                namespace                         = "gitlab-runner"
+                image                             = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+                privileged                        = true
+                cpu_limit                         = "4"
+                memory_limit                      = "8Gi"
+                service_account                   = "gitlab-runner"
+                bearer_token_overwrite_allowed    = false
+                service_account_overwrite_allowed = "gitlab-runner"
+
+                [runners.kubernetes.resource_requirements]
+                  [runners.kubernetes.resource_requirements.limits]
+                    "nvidia.com/gpu" = "1"
+                  [runners.kubernetes.resource_requirements.requests]
+                    "nvidia.com/gpu" = "1"
+
+              # Job pod node selector
+              [runners.kubernetes.node_selector]
+                hardware = "gpu"
+
+              [runners.kubernetes.node_tolerations]
+                "dedicated=gpu" = "NoExecute"
+              
+              # Runner home — persists system ID on the GPU node host
+              [[runners.kubernetes.volumes.host_path]]
+                name       = "runner-home"
+                mount_path = "/home/gitlab-runner/.gitlab-runner"
+                host_path  = "/mnt/training-cache/runner-home"
+                read_only  = false
+
+              # NVIDIA libs from host
+              [[runners.kubernetes.volumes.host_path]]
+                name       = "nvidia-libs"
+                mount_path = "/usr/local/nvidia"
+                read_only  = true
+                host_path  = "/lib/x86_64-linux-gnu"
+
+              # HuggingFace model cache — ephemeral per job
+              [[runners.kubernetes.volumes.empty_dir]]
+                name       = "model-cache"
+                mount_path = "/root/.cache/huggingface"
+
+              # NFS checkpoint storage
+              [[runners.kubernetes.volumes.host_path]]
+                name       = "nfs-checkpoints"
+                mount_path = "/models/checkpoints"
+                host_path  = "/mnt/training-cache/checkpoints"
+                read_only  = false
+     
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab-runner
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

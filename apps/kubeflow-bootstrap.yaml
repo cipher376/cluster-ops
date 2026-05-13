@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeflow-commons-bootstrap
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1" # Lowest number syncs first
+spec:
+  project: default
+  source:
+    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    targetRevision: HEAD
+    path: bootstrap/kubeflow/overlays/common-overlay
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kubeflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true # 100% required for Kubeflow
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeflow-application-bootstrap
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5" # Waits for Wave 1 to be Healthy
+spec:
+  project: default
+  source:
+    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    targetRevision: HEAD
+    path: bootstrap/kubeflow/overlays/apps-overlay
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kubeflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true # 100% required for Kubeflow
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true

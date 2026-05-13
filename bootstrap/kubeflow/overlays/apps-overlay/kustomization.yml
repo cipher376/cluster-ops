@@ -1,0 +1,23 @@
+resources:
+# Kubeflow Pipelines (SeaweedFS as default S3 storage)
+- ../../upstream/26.03/applications/pipeline/overlays  # Pipeline definitions stored in the database
+# Katib
+- ../../upstream/26.03/applications/katib/upstream/installs/katib-with-kubeflow
+# Central Dashboard
+- ../../upstream/26.03/applications/dashboard/overlays/istio
+# Notebooks v1
+- ../../upstream/26.03/applications/notebooks-v1/overlays/istio
+# Trainer (Training Operator v2)
+- ../../upstream/26.03/applications/trainer/overlays
+# KServe
+- ../../upstream/26.03/applications/kserve/kserve
+- ../../upstream/26.03/applications/kserve/models-web-app/overlays/kubeflow
+# Spark Operator
+- ../../upstream/26.03/applications/spark/spark-operator/overlays/kubeflow
+
+
+
+images:
+  - name: gcr.io/kubebuilder/kube-rbac-proxy
+    newName: registry.k8s.io/kubebuilder/kube-rbac-proxy
+    newTag: v0.16.0  # Or v0.18.0 for better security

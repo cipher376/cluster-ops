@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-developer
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: seaweedfs-s3-credentials
+  namespace: ml-developer
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  vault:
+    entity:
+      role: "cluster-ops-role"
+  target:
+    name: seaweedfs-s3-credentials      # Kubernetes secret name
+    creationPolicy: Owner
+  data:
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: access_key
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: secret_key
+

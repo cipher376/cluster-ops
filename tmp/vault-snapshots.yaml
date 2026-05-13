@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-s3-backup
+  namespace: vault
+spec:
+  schedule: "0 3 * * *"  # Runs at 3:00 AM daily
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup-tool
+            image: amazon/aws-cli:latest
+            env:
+              - name: VAULT_ADDR
+                value: "http://vault-active.vault.svc.cluster.local:8200"
+              - name: AWS_ENDPOINT_URL
+                value: "http://seaweedfs-s3.default.svc.cluster.local:8333"
+              - name: S3_BUCKET
+                value: "vault-backups"
+              # Ensure VAULT_TOKEN is provided via Secret or Kubernetes Auth
+              - name: VAULT_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: vault-unseal-token # Replace with your actual token secret name
+                    key: token
+            envFrom:
+              - secretRef:
+                  name: seaweedfs-credentials
+            command:
+              - /bin/bash
+              - -c
+              - |
+                set -e
+                echo "Starting Vault Raft Snapshot..."
+                
+                # 1. Take the snapshot
+                curl --header "X-Vault-Token: $VAULT_TOKEN" \
+                     --request GET \
+                     --fail \
+                     $VAULT_ADDR/v1/sys/storage/raft/snapshot --output /tmp/vault.snap
+                
+                echo "Snapshot complete. Uploading to SeaweedFS at $AWS_ENDPOINT_URL..."
+                
+                # 2. Upload to SeaweedFS (Using path-style for S3 compatibility)
+                aws s3 --endpoint-url $AWS_ENDPOINT_URL cp /tmp/vault.snap s3://$S3_BUCKET/vault_$(date +%F).snap
+                
+                echo "Backup successful."
+          restartPolicy: OnFailure
+
+          
