@@ -23,12 +23,12 @@ data:
       id: keycloak
       name: Keycloak
       config:
-        issuer: https://keycloak.ncs-cloud.lan/realms/kubeflow
+        issuer: http://keycloak.ncs-cloud.lan/realms/kubeflow
         clientID: kubeflow-oidc-client
         clientSecretRef:
           name: dex-keycloak-config
           key: client-secret
-        redirectURI: https://kubeflow.ncs-cloud.lan/dex/callback
+        redirectURI: http://kubeflow.ncs-cloud.lan/dex/callback
         # Explicitly map the claims Kubeflow needs
         userNameKey: email
         claimMapping:
