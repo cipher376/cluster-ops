@@ -27,4 +27,4 @@ patches:
       kind: ConfigMap
       name: dex
       namespace: auth
-    path: ../../patches/dex-patch.yml
+    path: patches/dex-patch.yml
