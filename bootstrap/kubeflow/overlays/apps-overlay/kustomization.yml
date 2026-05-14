@@ -21,3 +21,10 @@ images:
   - name: gcr.io/kubebuilder/kube-rbac-proxy
     newName: registry.k8s.io/kubebuilder/kube-rbac-proxy
     newTag: v0.16.0  # Or v0.18.0 for better security
+
+patches:
+  - target:
+      kind: ConfigMap
+      name: dex
+      namespace: auth
+    path: ../../patches/dex-patch.yml
