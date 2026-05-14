@@ -45,6 +45,7 @@ spec:
   selector:
     # Cilium Gateway Envoy pods label
     io.cilium.gateway/name: cilium-gateway-istio
+    
 ---
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
