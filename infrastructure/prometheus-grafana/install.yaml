@@ -178,7 +178,7 @@ spec:
         - name: GF_SERVER_DOMAIN
           value: "grafana.internal.ncs-cloud.lan"
         - name: GF_SERVER_ROOT_URL
-          value: "http://grafana.internal.ncs-cloud.lan"
+          value: "https://grafana.internal.ncs-cloud.lan"
         - name: GF_SERVER_ENFORCE_DOMAIN
           value: "false"
         # -----------------------

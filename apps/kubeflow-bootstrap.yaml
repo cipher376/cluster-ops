@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    repoURL: 'https://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
     targetRevision: HEAD
     path: bootstrap/kubeflow/overlays/common-overlay
   destination:
@@ -41,7 +41,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    repoURL: 'https://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
     targetRevision: HEAD
     path: bootstrap/kubeflow/overlays/apps-overlay
   destination:

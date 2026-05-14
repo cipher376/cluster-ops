@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'http://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    repoURL: 'https://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
     targetRevision: HEAD
     path: apps  # This points to the folder where your other app manifests live
   destination:
