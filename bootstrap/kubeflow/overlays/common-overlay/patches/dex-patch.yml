@@ -5,6 +5,19 @@ metadata:
   namespace: auth
 data:
   config.yaml: |
+    # --- REQUIRED BOILERPLATE ---
+    issuer: https://kubeflow.ncs-cloud.lan/dex
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      http: 0.0.0.0:5556
+    logger:
+      level: debug
+      format: text
+
+    # --- YOUR KEYCLOAK CONNECTOR ---
     connectors:
     - type: oidc
       id: keycloak
@@ -16,3 +29,8 @@ data:
           name: dex-keycloak-config
           key: client-secret
         redirectURI: https://kubeflow.ncs-cloud.lan/dex/callback
+        # Explicitly map the claims Kubeflow needs
+        userNameKey: email
+        claimMapping:
+          email: email
+          groups: groups
