@@ -36,13 +36,6 @@ data:
           email: email
           groups: groups
     staticClients:
-    - id: kubeflow-oidc-client
-      redirectURIs:
-      - https://kubeflow.ncs-cloud.lan/oauth2/callback
-      - '/oauth2/callback'
-      - 'https://kubeflow.ncs-cloud.lan/dex/callback'
-      name: Kubeflow Dashboard
-      public: true
     - id: kubeflow-oidc-authservice
       redirectURIs:
       - 'https://kubeflow.ncs-cloud.lan/oauth2/callback'   
