@@ -57,6 +57,11 @@ secretGenerator:
       disableNameSuffixHash: true
 
 patches:
+  - target:
+    kind: Deployment
+    name: ml-pipeline
+    namespace: kubeflow
+    path: patches/patch-api-server.yml
 
   - target:
       kind: ConfigMap

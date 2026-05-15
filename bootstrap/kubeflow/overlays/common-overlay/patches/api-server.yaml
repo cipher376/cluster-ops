@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pipeline
+  namespace: kubeflow
+spec:
+  template:
+    spec:
+      containers:
+      - name: ml-pipeline-api-server
+        env:
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: seaweedfs-s3-credentials # Matches target.name from your ExternalSecret
+              key: AWS_ACCESS_KEY_ID         # Matches your ESO secretKey
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: seaweedfs-s3-credentials # Matches target.name from your ExternalSecret
+              key: AWS_SECRET_ACCESS_KEY     # Matches your ESO secretKey

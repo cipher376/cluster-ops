@@ -1,13 +1,9 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ml-developer
----
+
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: seaweedfs-s3-credentials
-  namespace: ml-developer
+  namespace: kubeflow
 spec:
   refreshInterval: "1h"
   secretStoreRef:

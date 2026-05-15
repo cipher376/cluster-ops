@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kfp-launcher
+  namespace: kubeflow
+data:
+  defaultPipelineRoot: "minio://mlpipeline/v2/artifacts"
+  providers: |
+    {
+      "minio": {
+        "endpoint": "s3.seaweedfs.ncs-cloud.lan:8333",
+        "bucket": "mlpipeline",
+        "insecure": true, 
+        "secretRef": {
+          "name": "seaweedfs-s3-credentials",
+          "namespace": "kubeflow"
+        },
+        "keyMapping": {
+          "accesskey": "AWS_ACCESS_KEY_ID",
+          "secretkey": "AWS_SECRET_ACCESS_KEY"
+        }
+      }
+    }
