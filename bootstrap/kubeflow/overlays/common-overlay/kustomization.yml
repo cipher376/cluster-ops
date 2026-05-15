@@ -45,6 +45,7 @@ configMapGenerator:
     options:
       labels:
         app: dex
+        
 secretGenerator:
   - name: dex-oidc-client
     namespace: kubeflow
