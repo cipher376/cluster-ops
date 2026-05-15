@@ -78,7 +78,6 @@ patches:
 
 
   - target:
-      version: v1
       kind: RequestAuthentication
       name: dex-jwt
       namespace: istio-system
