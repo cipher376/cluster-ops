@@ -36,6 +36,16 @@ images:
     newTag: v0.16.0  # Or v0.18.0 for better security
 
 
+# Generate a ConfigMap from the CA certificate file
+configMapGenerator:
+  - name: dex-keycloak-config
+    namespace: auth
+    files:
+    - keycloak.ncs-cloud.lan=patches/root-ca.crt
+    options:
+      labels:
+        app: dex
+
 patches:
   - target:
       kind: ConfigMap
