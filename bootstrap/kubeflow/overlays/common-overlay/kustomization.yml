@@ -50,7 +50,7 @@ secretGenerator:
   - name: dex-oidc-client
     namespace: kubeflow
     literals:
-    - client-secret=MDNjMzk0NGU0NmFmNjJiCg==
+    - client-secret=QzhZaUJsUmE2WHhQQlo3ZWxlOU0wMXFqM2Myb3kwQlUK
     options:
       disableNameSuffixHash: true
 
