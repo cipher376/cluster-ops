@@ -7,3 +7,42 @@ type: Opaque
 stringData:
   client-id: "kubeflow-oidc-client"
   client-secret: "MDNjMzk0NGU0NmFmNjJiCg=="
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex-keycloak-config   # adjust to your {{ configmap_name }}
+  namespace: auth
+data:
+  keycloak.ncs-cloud.lan: |
+    -----BEGIN CERTIFICATE-----
+    MIIFDjCCAvagAwIBAgIUSFduy8/TYtGa2k8rU3ybUUBk/C4wDQYJKoZIhvcNAQEL
+    BQAwHzEdMBsGA1UEAwwUTkNTIEludGVybmFsIFJvb3QgQ0EwHhcNMjYwNTE0MTMx
+    MjI4WhcNMzYwNTExMTMxMjI4WjAfMR0wGwYDVQQDDBROQ1MgSW50ZXJuYWwgUm9v
+    dCBDQTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAMCDmGzuu9JEMMwT
+    BafJEojJD3oiHzRyWH8ligBadb6nO7tD/YFkclZLcqkZYpTC+b3sZAaopVnfeFgB
+    0EVbWKH1NwKl0Khc+NszCyUhQgey1j4fhqZChJQyTB57PRXvZiRSagGhu7zkXZIv
+    Mt8r3c1pDYQNxM8OEopi1fOxv6IIdhl0qIzu7hGzrDDF/GVaUNlXY8cOI3ocJKzJ
+    MK0Tc1lt3pRGN3EZGjPnAFscmUjIbV8wqya9EsNQDhPaOGuEE0BbWVrwhJvKVq9r
+    OfXafFsZeVBGBZMr3rrHrNTxJw39TBwGDEbhHGur84wtYOE3T5NugXMVffgDUn5H
+    JRx4wQOYAyUYVjSDm+ceK3Gip1M26RHdem75kKDJ1L46SfOnmtmeXvDiaf4jdghm
+    MGJnNn5t5ikj1q/VKFjpT7aYQmJ05ES5at1tKrtqx9SdveHrRj76KFtOaAXfyWHe
+    oZqQ6Q7QIeZ3hdUGuv6To2e4oD822XMlnDiOWbRkQ7azrirNTBiIZTga53pKz5iJ
+    keezHKoHQ3A9Og20GnhEFa7uaV3/110akWdqPv6uOj9au6L5n2Nd4YoNZ9iY/Nno
+    rVYbkHTbPEwl+lxL4ecbYjn0wVr1pCmatk2Jr9EGQ0MMkZSHDmtsyoC6QznHYxZE
+    MCe2eDn2HtU4KXdLRMPPsiN+UqbZAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8w
+    DgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBQPMQrOFJKBPTVT5Onb3i/0bKgSIzAN
+    BgkqhkiG9w0BAQsFAAOCAgEAH1x0tfnSl1UgDYOwF//uoshRICIeSvt44+f15an4
+    J5RDbCtPMRbqsHLTv4M75Ivs1da6qTlvNSErW0WB9/Q/v4ynk+adTDuBAHSu8/yT
+    Dv/Z8Ty+XqWBUWOe2UviIiqgbyfGWeSCT4IFypPFzsZ+jQA6FzlDN0VGBEN00EUN
+    Tvu5XdxlKAS0ry7TxxQIxSGYa2ObiYTC05r86XcNqC3Y+1VQg3FSn5TktEhFN+IY
+    1rEd4hf2xtrn0cKqcmKxW+Ach5Bi1Cpnb/gePZXvXVvNweq5mFqwMIu/idjKy5l+
+    z392hhAp9V6CIantyDwxBtgGMzNRQfgZ1t0W0XD1mIgeQtp8adTKO4qWWZR7jIzA
+    4DVwo5udiK7IGuVpbwgG0P8EsJtnnRpoHcPCQnqbVXqdJYNxmQ7ghYWAVE5o3t5Z
+    julrkYvq2uoyjCCMgjqe2PJnJmyq3bc8g+32CvGhbUPTTtiRgZd5NWCFj/wThdbb
+    89I/XCnRsU/lGmpwdedChvr3g5bRkpLRXcxkLDoaxKYi8SY9J61GvDie+054VLDe
+    KWRBIfiXFXjSNya1ehvZF1VlaIU5h5EBiuegVYlNMjrn5Gh6adHKKt2o6cJn05tW
+    DU6+1PAyePLzzVB3dOp3SReeNGhSnyCDvLAv53sHVNcZZrmwYVzhqr3kRGJjBh1H
+    g6A=
+    -----END CERTIFICATE-----
