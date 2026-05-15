@@ -6,7 +6,7 @@ metadata:
 type: Opaque
 stringData:
   client-id: "kubeflow-oidc-client"
-  client-secret: "QzhZaUJsUmE2WHhQQlo3ZWxlOU0wMXFqM2Myb3kwQlUK"
+  client-secret: "C8YiBlRa6XxPBZ7ele9M01qj3c2oy0BU"
 
 ---
 apiVersion: v1
