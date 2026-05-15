@@ -76,13 +76,13 @@ patches:
           name: SSL_CERT_FILE
           value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
 
-          
+
   - target:
       version: v1
       kind: RequestAuthentication
       name: dex-jwt
       namespace: istio-system
-    patch: |-
+    patch: |
       - op: replace
         path: /spec/jwtRules
         value:
