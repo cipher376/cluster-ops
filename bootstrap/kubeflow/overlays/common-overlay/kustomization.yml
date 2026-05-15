@@ -102,6 +102,7 @@ patches:
           jwksUri: http://dex.auth.svc.cluster.local:5556/dex/keys
           audiences:
             - kubeflow-oidc-client
+            - kubeflow-oidc-authservice
           outputClaimToHeaders:
           - claim: email
             header: kubeflow-userid
