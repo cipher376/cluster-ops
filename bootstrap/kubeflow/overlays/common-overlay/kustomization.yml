@@ -49,6 +49,7 @@ configMapGenerator:
 secretGenerator:
   - name: dex-oidc-client
     namespace: auth
+    behavior: replace 
     literals:
     - client-secret=C8YiBlRa6XxPBZ7ele9M01qj3c2oy0BU
     options:
