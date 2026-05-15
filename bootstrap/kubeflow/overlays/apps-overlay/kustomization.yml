@@ -22,6 +22,13 @@ images:
     newName: registry.k8s.io/kubebuilder/kube-rbac-proxy
     newTag: v0.16.0  # Or v0.18.0 for better security
 
+secretGenerator:
+  - name: kubeflow-dashboard-oidc
+    namespace: kubeflow  # <-- Must be in the kubeflow namespace
+    literals:
+      - client-secret=pUBnBOY80SnXgjibTYM9ZWNzY2xreNGQok
+    options:
+      disableNameSuffixHash: true
 
 patches:
   - target:

@@ -56,13 +56,6 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
 
-  - name: kubeflow-dashboard-oidc
-    namespace: kubeflow  # <-- Must be in the kubeflow namespace
-    literals:
-      - client-secret=pUBnBOY80SnXgjibTYM9ZWNzY2xreNGQok
-    options:
-      disableNameSuffixHash: true
-
 patches:
 
   - target:
