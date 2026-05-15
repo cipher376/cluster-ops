@@ -65,7 +65,7 @@ patches:
     path: patches/dex-patch-cm.yml
 
   - target:
-      kind: ConfigMap
+      kind: Deployment
       name: dex
       namespace: auth
     path: patches/dex-patch-deployment.yml
