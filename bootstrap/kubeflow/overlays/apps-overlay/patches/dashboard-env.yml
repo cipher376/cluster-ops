@@ -24,3 +24,6 @@ spec:
             value: "kubeflow-userid"
           - name: USERID_PREFIX
             value: ""
+          # --- ADD THIS VARIABLE TO TRIGGER AUTOMATIC REGISTRATION ---
+          - name: CD_REGISTRATION_FLOW
+            value: "true"

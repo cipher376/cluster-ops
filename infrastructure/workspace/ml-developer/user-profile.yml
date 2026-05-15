@@ -1,0 +1,8 @@
+# apiVersion: kubeflow.org/v1
+# kind: Profile
+# metadata:
+#   name: ml-developer  # The name of your Kubeflow workspace namespace
+# spec:
+#   owner:
+#     kind: User
+#     name: "ntiamoah376@yahoo.com" # Must perfectly match your Keycloak email from the logs
