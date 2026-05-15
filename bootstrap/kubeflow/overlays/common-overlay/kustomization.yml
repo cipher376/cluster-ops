@@ -63,7 +63,9 @@ patches:
       name: dex
       namespace: auth
     path: patches/dex-patch.yml
-  
+
+
+patchesJson6902:
   - target:
       kind: Deployment
       name: dex
