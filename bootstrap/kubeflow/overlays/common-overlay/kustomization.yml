@@ -45,9 +45,6 @@ configMapGenerator:
     options:
       labels:
         app: dex
-        
-patchesStrategicMerge:
-  - patches/dex-request-auth.yml
 
 patches:
   - target:
@@ -78,3 +75,25 @@ patches:
         value:
           name: SSL_CERT_FILE
           value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
+
+          
+  - target:
+      version: v1
+      kind: RequestAuthentication
+      name: dex-jwt
+      namespace: istio-system
+    patch: |-
+      - op: replace
+        path: /spec/jwtRules
+        value:
+        - forwardOriginalToken: true
+          fromHeaders:
+          - name: Authorization
+            prefix: "Bearer "
+          issuer: https://kubeflow.ncs-cloud.lan/dex
+          jwksUri: https://kubeflow.ncs-cloud.lan/dex/keys
+          outputClaimToHeaders:
+          - claim: email
+            header: kubeflow-userid
+          - claim: groups
+            header: kubeflow-groups
