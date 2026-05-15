@@ -91,6 +91,8 @@ patches:
             prefix: "Bearer "
           issuer: https://kubeflow.ncs-cloud.lan/dex
           jwksUri: http://dex.auth.svc.cluster.local:5556/dex/keys
+          audiences:
+            - kubeflow-oidc-client
           outputClaimToHeaders:
           - claim: email
             header: kubeflow-userid
