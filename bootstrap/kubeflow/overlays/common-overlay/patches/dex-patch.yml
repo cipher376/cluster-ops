@@ -40,6 +40,7 @@ data:
       redirectURIs:
       - https://kubeflow.ncs-cloud.lan/oauth2/callback
       name: Kubeflow Dashboard
+      public: true
     - id: kubeflow-oidc-authservice
       redirectURIs:
       - 'https://kubeflow.ncs-cloud.lan/oauth2/callback'   # or '/oauth2/callback'
