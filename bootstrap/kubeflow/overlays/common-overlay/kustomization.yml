@@ -62,40 +62,44 @@ patches:
       kind: ConfigMap
       name: dex
       namespace: auth
-    path: patches/dex-patch.yml
+    path: patches/dex-patch-cm.yml
 
-
-patchesJson6902:
   - target:
-      kind: Deployment
+      kind: ConfigMap
       name: dex
       namespace: auth
-    patch: |
-      - op: add
-        path: /spec/template/spec/volumes/-
-        value:
-          name: keycloak-ca
-          configMap:
-            name: keycloak-ca
-      - op: add
-        path: /spec/template/spec/containers/0/volumeMounts/-
-        value:
-          name: keycloak-ca
-          mountPath: /etc/ssl/certs/keycloak-ca
-          readOnly: true
-      - op: add
-        path: /spec/template/spec/containers/0/env/-
-        value:
-          name: SSL_CERT_FILE
-          value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
-      - op: add
-          path: /spec/template/spec/containers/0/env/-
-          value:
-            name: KEYCLOAK_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: dex-keycloak-config
-                key: client-secret
+    path: patches/dex-patch-deployment.yml
+
+#   - target:
+#       kind: Deployment
+#       name: dex
+#       namespace: auth
+#     patch: |
+#       - op: add
+#         path: /spec/template/spec/volumes/-
+#         value:
+#           name: keycloak-ca
+#           configMap:
+#             name: keycloak-ca
+#       - op: add
+#         path: /spec/template/spec/containers/0/volumeMounts/-
+#         value:
+#           name: keycloak-ca
+#           mountPath: /etc/ssl/certs/keycloak-ca
+#           readOnly: true
+#       - op: add
+#         path: /spec/template/spec/containers/0/env/-
+#         value:
+#           name: SSL_CERT_FILE
+#           value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
+#       - op: add
+#           path: /spec/template/spec/containers/0/env/-
+#           value:
+#             name: KEYCLOAK_CLIENT_SECRET
+#             valueFrom:
+#               secretKeyRef:
+#                 name: dex-keycloak-config
+#                 key: client-secret
 
 
   - target:
