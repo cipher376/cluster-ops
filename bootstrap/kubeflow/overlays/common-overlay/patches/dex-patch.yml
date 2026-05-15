@@ -35,3 +35,8 @@ data:
         claimMapping:
           email: email
           groups: groups
+    staticClients:
+    - id: kubeflow-oidc-client
+      redirectURIs:
+      - https://kubeflow.ncs-cloud.lan/oauth2/callback
+      name: Kubeflow Dashboard
