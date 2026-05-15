@@ -48,6 +48,12 @@ configMapGenerator:
 
 patches:
   - target:
+      kind: Deployment
+      name: dashboard
+      namespace: kubeflow
+    path: patches/dashboard-env.yml
+
+  - target:
       kind: ConfigMap
       name: dex
       namespace: auth

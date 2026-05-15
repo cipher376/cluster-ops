@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: kubeflow
+spec:
+  template:
+    spec:
+      containers:
+      - name: dashboard
+        env:
+        - name: OIDC_AUTH_URL
+          value: "https://kubeflow.ncs-cloud.lan/dex"
+        - name: OIDC_CLIENT_ID
+          value: "kubeflow-oidc-client"
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: dex-oidc-client
+              key: client-secret
+        # Optional but recommended:
+        - name: USERID_HEADER
+          value: "kubeflow-userid"
+        - name: USERID_PREFIX
+          value: ""
