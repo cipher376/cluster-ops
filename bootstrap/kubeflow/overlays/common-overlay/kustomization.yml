@@ -90,7 +90,7 @@ patches:
           - name: Authorization
             prefix: "Bearer "
           issuer: https://kubeflow.ncs-cloud.lan/dex
-          jwksUri: https://kubeflow.ncs-cloud.lan/dex/keys
+          jwksUri: http://dex.auth.svc.cluster.local:5556/dex/keys
           outputClaimToHeaders:
           - claim: email
             header: kubeflow-userid
