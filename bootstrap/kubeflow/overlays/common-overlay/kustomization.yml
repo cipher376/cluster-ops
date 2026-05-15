@@ -45,6 +45,9 @@ configMapGenerator:
     options:
       labels:
         app: dex
+        
+patchesStrategicMerge:
+  - patches/dex-request-auth.yml
 
 patches:
   - target:
