@@ -74,4 +74,4 @@ patches:
         path: /spec/template/spec/containers/0/env/-
         value:
           name: SSL_CERT_FILE
-          value: /etc/ssl/certs/keycloak-ca/ca.crt
+          value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
