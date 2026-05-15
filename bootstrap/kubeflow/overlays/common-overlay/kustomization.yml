@@ -70,37 +70,21 @@ patches:
       namespace: auth
     path: patches/dex-patch-deployment.yml
 
-#   - target:
-#       kind: Deployment
-#       name: dex
-#       namespace: auth
-#     patch: |
-#       - op: add
-#         path: /spec/template/spec/volumes/-
-#         value:
-#           name: keycloak-ca
-#           configMap:
-#             name: keycloak-ca
-#       - op: add
-#         path: /spec/template/spec/containers/0/volumeMounts/-
-#         value:
-#           name: keycloak-ca
-#           mountPath: /etc/ssl/certs/keycloak-ca
-#           readOnly: true
-#       - op: add
-#         path: /spec/template/spec/containers/0/env/-
-#         value:
-#           name: SSL_CERT_FILE
-#           value: /etc/ssl/certs/keycloak-ca/keycloak.ncs-cloud.lan
-#       - op: add
-#           path: /spec/template/spec/containers/0/env/-
-#           value:
-#             name: KEYCLOAK_CLIENT_SECRET
-#             valueFrom:
-#               secretKeyRef:
-#                 name: dex-keycloak-config
-#                 key: client-secret
-
+  - target:
+      kind: Deployment
+      name: oauth2-proxy
+      namespace: oauth2-proxy
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: OAUTH2_PROXY_OIDC_ISSUER_URL
+          value: "https://kubeflow.ncs-cloud.lan/dex"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: OAUTH2_PROXY_REDEEM_URL
+          value: "http://dex.auth.svc.cluster.local:5556/dex/token"
 
   - target:
       kind: RequestAuthentication
