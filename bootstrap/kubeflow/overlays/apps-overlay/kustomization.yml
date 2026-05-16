@@ -61,12 +61,6 @@ patches:
 
   - target:
       kind: Deployment
-      name: notebook-controller-deployment
-      namespace: kubeflow
-    path: patches/notebook-controller-deployment.yml
-
-  - target:
-      kind: Deployment
       name: ml-pipeline
       namespace: kubeflow
     path: patches/ml-pipeline.yml
@@ -99,7 +93,7 @@ patches:
       kind: Deployment
       name: notebook-controller-deployment
       namespace: kubeflow
-    path: patches/notebook-controller.yml
+    path: patches/notebook.yml
 
   - target:
       kind: Deployment
