@@ -6,7 +6,25 @@ spec:
   owner:
     kind: User
     name: "ntiamoah376@yahoo.com" # 2. Enter their Keycloak email
-
+---
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: gpu-tolerations
+  namespace: llm-lab
+spec:
+  selector:
+    matchLabels:
+      gpu-tolerations: "true" # This is the label to match
+  tolerations: # Your tolerations configuration
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoExecute"
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
 ---
 apiVersion: v1
 kind: ResourceQuota
