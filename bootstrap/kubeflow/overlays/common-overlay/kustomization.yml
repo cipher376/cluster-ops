@@ -28,10 +28,10 @@ resources:
 - ../../upstream/26.03/common/user-namespace/base
 
 
-- ../../extensions
 
 
-
+resources:
+  - resources/gpu-toleration.yml
 
 images:
   - name: gcr.io/kubebuilder/kube-rbac-proxy
