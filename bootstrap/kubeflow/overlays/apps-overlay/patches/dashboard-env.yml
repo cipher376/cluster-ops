@@ -21,7 +21,7 @@ spec:
                 key: client-secret
                 
           - name: USERID_HEADER
-            value: "kubeflow-userid"
+            value: "X-Auth-Request-Email"
           - name: USERID_PREFIX
             value: ""
           # --- ADD THIS VARIABLE TO TRIGGER AUTOMATIC REGISTRATION ---
