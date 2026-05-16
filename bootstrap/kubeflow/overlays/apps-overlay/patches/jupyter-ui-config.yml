@@ -5,15 +5,13 @@ metadata:
   namespace: kubeflow
 data:
   spawner_ui_config.yaml: |
-    # --- Standard Notebook Spawner Config Overlay ---
+    # --- Automatically checks the GPU node option on the form ---
     spawnerFormDefaults:
       allowCustomImage: true
-      
-      # This injects the tolerations seamlessly behind the scenes
       tolerationGroup:
         value: "gpu-pool"
-      
-    # Map the allowed selections to explicitly target your NoExecute node taint  
+        
+    # --- Injects the exact keys needed to bypass your NoExecute taint ---
     tolerationsGroups:
       - groupKey: "gpu-pool"
         displayName: "Dedicated NVIDIA GPU Node Pool"
@@ -25,4 +23,5 @@ data:
           - key: "dedicated"
             operator: "Equal"
             value: "gpu"
+            effect: "NoSchedule"
             effect: "NoSchedule"

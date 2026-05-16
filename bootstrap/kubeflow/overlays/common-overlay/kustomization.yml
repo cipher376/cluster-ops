@@ -58,11 +58,6 @@ secretGenerator:
 
 patches:
   - target:
-      kind: ClusterPolicy
-      name: cluster-policy
-    path: patches/gpu-operator-tolerations.yml
-
-  - target:
       kind: ConfigMap
       name: dex
       namespace: auth
