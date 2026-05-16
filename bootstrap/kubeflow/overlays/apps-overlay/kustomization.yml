@@ -106,3 +106,9 @@ patches:
       name: cache-server
       namespace: kubeflow
     path: patches/cache-server.yml
+
+  - target:
+      kind: Deployment
+      name: ml-pipeline-ui
+      namespace: kubeflow
+    path: patches/ml-pipeline-ui.yml
