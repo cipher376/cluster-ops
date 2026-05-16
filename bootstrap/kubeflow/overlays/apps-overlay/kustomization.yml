@@ -48,6 +48,11 @@ patches:
 
   - target:
       kind: Deployment
+      name: jupyter-web-app-deployment
+    path: patches/jupyter-web-app.yml
+
+  - target:
+      kind: Deployment
       name: ml-pipeline
       namespace: kubeflow
     path: patches/api-server.yml
