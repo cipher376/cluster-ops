@@ -49,13 +49,6 @@ configMapGenerator:
       labels:
         app: dex
 
-configMapGenerator:
-  - name: seaweedfs-ca
-    namespace: kubeflow
-    files:
-    - ca.crt=patches/root-ca.crt
-
-
 secretGenerator:
   - name: dex-keycloak-config
     namespace: auth
