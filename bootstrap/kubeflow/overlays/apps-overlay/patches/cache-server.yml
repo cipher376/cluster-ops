@@ -10,4 +10,4 @@ spec:
         inject-shared-resource: "enabled"   # Kyverno will inject CA and S3 credentials
     spec:
       containers:
-      - name: cache-server
+      - name: server
