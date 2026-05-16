@@ -30,11 +30,7 @@ secretGenerator:
     options:
       disableNameSuffixHash: true
 
-configMapGenerator:
-- name: jupyter-web-app-config
-  behavior: merge
-  files:
-    - patches/spawner_ui_config.yml
+
 
 
 
@@ -45,10 +41,10 @@ patches:
       namespace: kubeflow
     path: patches/dashboard-env.yml
 
-  # - target:
-  #     kind: ConfigMap
-  #     name: jupyter-web-app-config
-  #   path: patches/jupyter-ui-config.yml
+  - target:
+      kind: ConfigMap
+      name: jupyter-web-app-config
+    path: patches/jupyter-ui-config.yml
 
   - target:
       kind: Deployment
@@ -61,3 +57,10 @@ patches:
       name: kfp-launcher
       namespace: kubeflow
     path: patches/launcher-config.yml
+
+
+configMapGenerator:
+- name: jupyter-web-app-config
+  behavior: merge
+  files:
+    - patches/spawner_ui_config.yml

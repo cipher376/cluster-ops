@@ -24,4 +24,3 @@ data:
             operator: "Equal"
             value: "gpu"
             effect: "NoSchedule"
-            effect: "NoSchedule"
