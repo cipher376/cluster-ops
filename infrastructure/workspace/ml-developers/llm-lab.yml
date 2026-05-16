@@ -25,10 +25,6 @@ spec:
       operator: "Equal"
       value: "gpu"
       effect: "NoExecute"
-    - key: "dedicated"
-      operator: "Equal"
-      value: "gpu"
-      effect: "NoSchedule"
 ---
 apiVersion: v1
 kind: ResourceQuota
