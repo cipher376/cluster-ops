@@ -86,21 +86,21 @@ spawnerFormDefaults:
     options: []
 
   # CUSTOM: GPU toleration group as the default selection
-  tolerationGroup:
-    readOnly: false
-    value: "gpu-pool"
-    options:
-    - groupKey: "gpu-pool"
-      displayName: "Dedicated NVIDIA GPU Node Pool"
-      tolerations:
-        - key: "dedicated"
-          operator: "Equal"
-          value: "gpu"
-          effect: "NoExecute"
-        - key: "dedicated"
-          operator: "Equal"
-          value: "gpu"
-          effect: "NoSchedule"
+  # tolerationGroup:
+  #   readOnly: false
+  #   value: "gpu-pool"
+  #   options:
+  #   - groupKey: "gpu-pool"
+  #     displayName: "Dedicated NVIDIA GPU Node Pool"
+  #     tolerations:
+  #       - key: "dedicated"
+  #         operator: "Equal"
+  #         value: "gpu"
+  #         effect: "NoExecute"
+  #       - key: "dedicated"
+  #         operator: "Equal"
+  #         value: "gpu"
+  #         effect: "NoSchedule"
 
   shm:
     readOnly: false
@@ -115,15 +115,15 @@ spawnerFormDefaults:
     value: {}
 
 # CUSTOM: Top-level tolerationsGroups (adds GPU pool to the UI dropdown)
-tolerationsGroups:
-  - groupKey: "gpu-pool"
-    displayName: "Dedicated NVIDIA GPU Node Pool"
-    tolerations:
-      - key: "dedicated"
-        operator: "Equal"
-        value: "gpu"
-        effect: "NoExecute"
-      - key: "dedicated"
-        operator: "Equal"
-        value: "gpu"
-        effect: "NoSchedule"
+# tolerationsGroups:
+#   - groupKey: "gpu-pool"
+#     displayName: "Dedicated NVIDIA GPU Node Pool"
+#     tolerations:
+#       - key: "dedicated"
+#         operator: "Equal"
+#         value: "gpu"
+#         effect: "NoExecute"
+#       - key: "dedicated"
+#         operator: "Equal"
+#         value: "gpu"
+#         effect: "NoSchedule"
