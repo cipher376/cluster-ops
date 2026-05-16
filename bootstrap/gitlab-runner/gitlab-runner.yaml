@@ -21,6 +21,9 @@ spec:
         envVars:
           - name: HOME
             value: /home/gitlab-runner
+        
+        podAnnotations:
+          inject-certs: "enabled"
 
         # --- RBAC ---
         rbac:
