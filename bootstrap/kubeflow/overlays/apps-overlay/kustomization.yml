@@ -89,6 +89,12 @@ patches:
       namespace: kubeflow
     path: patches/tensorboard-controller.yml
 
+- target:
+      kind: Deployment
+      name: tensorboards-web-app-deployment
+      namespace: kubeflow
+    path: patches/tensorboard-web-app.yml
+  
   - target:
       kind: Deployment
       name: notebook-controller-deployment

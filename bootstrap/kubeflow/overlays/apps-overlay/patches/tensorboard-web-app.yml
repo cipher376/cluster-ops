@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensorboards-web-app-deployment
+  namespace: kubeflow
+spec:
+  template:
+    metadata:
+      annotations:
+        inject-certs: "enabled"   # <-- add this line
+    spec:
+      containers:
+      - name: tensorboards-web-app
+        # rest of the container spec remains unchanged
