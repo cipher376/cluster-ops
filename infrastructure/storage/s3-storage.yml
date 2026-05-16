@@ -25,3 +25,26 @@ spec:
         key: seaweedfs/s3/admin-role
         property: secret_key
 
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: seaweedfs-s3-credentials
+  namespace: llm-lab   # 3. Matches the namespace name above
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: seaweedfs-s3-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: access_key
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: secret_key

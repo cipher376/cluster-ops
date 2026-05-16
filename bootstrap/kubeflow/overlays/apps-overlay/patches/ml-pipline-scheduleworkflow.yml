@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ml-pipeline
+  name: ml-pipeline-scheduledworkflow
   namespace: kubeflow
 spec:
   template:
@@ -10,5 +10,5 @@ spec:
         inject-shared-resource: "enabled"   # Kyverno will inject CA and S3 credentials
     spec:
       containers:
-      - name: ml-pipeline-api-server   # adjust container name if needed
+      - name: ml-pipeline-scheduledworkflow
         

@@ -36,15 +36,22 @@ secretGenerator:
 
 patches:
   - target:
+      kind: ConfigMap
+      name: kfp-launcher
+      namespace: kubeflow
+    path: patches/launcher-config.yml
+  
+  - target:
+      kind: ConfigMap
+      name: jupyter-web-app-config
+    path: patches/jupyter-ui-config.yml
+
+  - target:
       kind: Deployment
       name: dashboard
       namespace: kubeflow
     path: patches/dashboard-env.yml
 
-  - target:
-      kind: ConfigMap
-      name: jupyter-web-app-config
-    path: patches/jupyter-ui-config.yml
 
   - target:
       kind: Deployment
@@ -58,7 +65,6 @@ patches:
       namespace: kubeflow
     path: patches/notebook-controller-deployment.yml
 
-
   - target:
       kind: Deployment
       name: ml-pipeline
@@ -66,14 +72,37 @@ patches:
     path: patches/ml-pipeline.yml
   
   - target:
-      kind: ConfigMap
-      name: kfp-launcher
+      kind: Deployment
+      name: ml-pipeline-persistenceagent
       namespace: kubeflow
-    path: patches/launcher-config.yml
+    path: patches/ml-pipeline-persistenceagent.yml
 
+  - target:
+      kind: Deployment
+      name: ml-pipeline-scheduledworkflow
+      namespace: kubeflow
+    path: patches/ml-pipeline-scheduledworkflow.yml
 
-# configMapGenerator:
-# - name: jupyter-web-app-config
-#   behavior: merge
-#   files:
-#     - patches/spawner_ui_config.yml
+  - target:
+      kind: Deployment
+      name: workflow-controller
+      namespace: kubeflow
+    path: patches/workflow-controller.yml
+
+  - target:
+      kind: Deployment
+      name: tensorboard-controller-deployment
+      namespace: kubeflow
+    path: patches/tensorboard-controller.yml
+
+  - target:
+      kind: Deployment
+      name: notebook-controller-deployment
+      namespace: kubeflow
+    path: patches/notebook-controller.yml
+
+  - target:
+      kind: Deployment
+      name: cache-server
+      namespace: kubeflow
+    path: patches/cache-server.yml

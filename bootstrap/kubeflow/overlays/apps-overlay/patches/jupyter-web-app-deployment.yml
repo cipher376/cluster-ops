@@ -5,17 +5,9 @@ metadata:
   namespace: kubeflow
 spec:
   template:
+    metadata:
+      annotations:
+        inject-shared-resource: "enabled"   # Kyverno injects CA and S3 credentials
     spec:
-      volumes:
-      - name: ca-pemstore
-        configMap:
-          name: ca-pemstore
       containers:
-      - name: jupyter-web-app   # adjust if the container name differs
-        volumeMounts:
-        - name: ca-pemstore
-          mountPath: /etc/ssl/certs/custom-ca
-          readOnly: true
-        env:
-        - name: SSL_CERT_FILE
-          value: /etc/ssl/certs/custom-ca/ca.crt
+      - name: jupyter-web-app

@@ -1,0 +1,73 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-s3-ca-credentials
+spec:
+  background: false
+  rules:
+    - name: inject-ca-and-s3
+      match:
+        any:
+        - resources:
+            kinds:
+            - Pod
+      preconditions:
+        all:
+        - key: "{{ request.object.metadata.annotations.\"inject-shared-resource\" || '' }}"
+          operator: Equals
+          value: enabled
+      mutate:
+        patchStrategicMerge:
+          spec:
+            # Add volume for CA certificate (if not already present)
+            volumes:
+              - name: ca-pemstore
+                configMap:
+                  name: ca-pemstore
+            containers:
+              - (name): "*"
+                # Mount the CA volume
+                volumeMounts:
+                  - name: ca-pemstore
+                    mountPath: /etc/ssl/certs/custom-ca
+                    readOnly: true
+                # Inject environment variables
+                env:
+                  # CA trust for Go, Python, Node.js, etc.
+                  - name: SSL_CERT_FILE
+                    value: /etc/ssl/certs/custom-ca/ca.crt
+                  - name: REQUESTS_CA_BUNDLE
+                    value: /etc/ssl/certs/custom-ca/ca.crt
+                  - name: NODE_EXTRA_CA_CERTS
+                    value: /etc/ssl/certs/custom-ca/ca.crt
+                  # S3 credentials (secret must exist in the Pod's namespace)
+                  - name: AWS_ACCESS_KEY_ID
+                    valueFrom:
+                      secretKeyRef:
+                        name: seaweedfs-s3-credentials
+                        key: AWS_ACCESS_KEY_ID
+                  - name: AWS_SECRET_ACCESS_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: seaweedfs-s3-credentials
+                        key: AWS_SECRET_ACCESS_KEY
+
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+configMapGenerator:
+  - name: ca-pemstore
+    namespace: llm-lab
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
+      
+  - name: ca-pemstore
+    namespace: kubeflow
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
