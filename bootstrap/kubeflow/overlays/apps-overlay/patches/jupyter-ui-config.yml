@@ -95,19 +95,15 @@ data:
       # CUSTOM: GPU toleration group as the default selection
       tolerationGroup:
         readOnly: false
-        value: "gpu-pool"
+        value: "gpu-pool-dedicated"
         options:
-        - groupKey: "gpu-pool"
+        - groupKey: "gpu-pool-dedicated"
           displayName: "Dedicated NVIDIA GPU Node Pool"
           tolerations:
             - key: "dedicated"
               operator: "Equal"
               value: "gpu"
               effect: "NoExecute"
-            - key: "dedicated"
-              operator: "Equal"
-              value: "gpu"
-              effect: "NoSchedule"
     
       shm:
         readOnly: false
@@ -123,13 +119,16 @@ data:
     
     # CUSTOM: Top-level tolerationsGroups (adds GPU pool to the UI dropdown)
     tolerationsGroups:
-      - groupKey: "gpu-pool"
+      - groupKey: "gpu-pool-dedicated"
         displayName: "Dedicated NVIDIA GPU Node Pool"
         tolerations:
           - key: "dedicated"
             operator: "Equal"
             value: "gpu"
             effect: "NoExecute"
+      - groupKey: "gpu-pool-shared"
+        displayName: "Shared NVIDIA GPU Node Pool"
+        tolerations:
           - key: "dedicated"
             operator: "Equal"
             value: "gpu"
