@@ -58,6 +58,11 @@ secretGenerator:
 
 patches:
   - target:
+    kind: ClusterPolicy
+    name: cluster-policy
+    path: patches/gpu-operator-tolerations.yml
+
+  - target:
     kind: Deployment
     name: ml-pipeline
     namespace: kubeflow

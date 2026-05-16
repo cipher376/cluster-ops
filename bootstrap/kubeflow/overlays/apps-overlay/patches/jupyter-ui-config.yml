@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jupyter-web-app-config
+  namespace: kubeflow
+data:
+  spawner_ui_config.yaml: |
+    # --- Standard Notebook Spawner Config Overlay ---
+    spawnerFormDefaults:
+      allowCustomImage: true
+      
+      # This injects the tolerations seamlessly behind the scenes
+      tolerationGroup:
+        value: "gpu-pool"
+      
+    # Map the allowed selections to explicitly target your NoExecute node taint  
+    tolerationsGroups:
+      - groupKey: "gpu-pool"
+        displayName: "Dedicated NVIDIA GPU Node Pool"
+        tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoExecute"
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoSchedule"
