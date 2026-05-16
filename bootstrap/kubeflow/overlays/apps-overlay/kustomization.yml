@@ -36,8 +36,6 @@ configMapGenerator:
   files:
     - patches/spawner_ui_config.yml
 
-configurations:
-  - params.yaml
 
 
 patches:
