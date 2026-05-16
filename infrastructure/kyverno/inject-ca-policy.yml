@@ -34,17 +34,19 @@ spec:
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: llm-lab
-configMapGenerator:
-- name: ca-pemstore
-  files:
-  - ca.crt=root-ca.crt
 
----
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: kubeflow
+
 configMapGenerator:
-- name: ca-pemstore
-  files:
-  - ca.crt=root-ca.crt
+  - name: ca-pemstore
+    namespace: llm-lab
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
+      
+  - name: ca-pemstore
+    namespace: kubeflow
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
