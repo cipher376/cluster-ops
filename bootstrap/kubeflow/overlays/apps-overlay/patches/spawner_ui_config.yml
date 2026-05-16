@@ -1,0 +1,22 @@
+# This file defines the actual UI form
+spawnerFormDefaults:
+  exposeReadOnlyName:
+    value: false
+  # This is the "Smooth Automation" part: 
+  # It pre-selects the GPU group so users don't have to click it.
+  tolerations:
+    value: "gpu-pool"
+
+# This defines the logic for the "NoExecute" taint
+tolerationsGroups:
+  - groupKey: "gpu-pool"
+    displayName: "Dedicated NVIDIA GPU Node Pool"
+    tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "gpu"
+        effect: "NoExecute"
+      - key: "dedicated"
+        operator: "Equal"
+        value: "gpu"
+        effect: "NoSchedule"

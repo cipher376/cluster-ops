@@ -79,7 +79,6 @@ spec:
           executor: kubernetes
 
           
-
           config: |
             [[runners]]
               request_concurrency = 2
