@@ -58,7 +58,7 @@ spec:
 
 ---
 apiVersion: kyverno.io/v1
-kind: MutatingPolicy
+kind: ClusterPolicy
 metadata:
   name: inject-s3-credentials-api-server
 spec:
