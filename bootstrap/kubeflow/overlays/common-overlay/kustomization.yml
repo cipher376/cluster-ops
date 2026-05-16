@@ -49,6 +49,21 @@ configMapGenerator:
       labels:
         app: dex
 
+  - name: ca-pemstore
+    namespace: llm-lab
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
+      
+  - name: ca-pemstore
+    namespace: kubeflow
+    files:
+    - ca.crt=root-ca.crt
+    options:
+      disableNameSuffixHash: true
+
+
 secretGenerator:
   - name: dex-keycloak-config
     namespace: auth
