@@ -28,6 +28,9 @@ resources:
 - ../../upstream/26.03/common/user-namespace/base
 
 
+- ../../extensions
+
+
 
 
 images:
