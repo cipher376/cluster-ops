@@ -9,7 +9,7 @@ spec:
       volumes:
       - name: keycloak-ca
         configMap:
-          name: keycloak-ca
+          name: dex-keycloak-config
       containers:
       - name: dex
         volumeMounts:
