@@ -67,6 +67,12 @@ patches:
       name: ml-pipeline
       namespace: kubeflow
     path: patches/api-server.yml
+  
+  - target:
+      kind: ConfigMap
+      name: kfp-launcher
+      namespace: kubeflow
+    path: patches/launcher-config.yml
 
   - target:
       kind: ConfigMap
