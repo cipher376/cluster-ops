@@ -1,0 +1,66 @@
+apiVersion: kubeflow.org/v1
+kind: Profile
+metadata:
+  name: llm-lab       # 1. Choose their namespace name
+spec:
+  owner:
+    kind: User
+    name: "ntiamoah376@yahoo.com" # 2. Enter their Keycloak email
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: llm-lab-compute-quota
+  namespace: llm-lab # Target your user workspace namespace
+spec:
+  hard:
+    # CPU and Memory ceilings across all pods in this namespace combined
+    requests.cpu: "2"
+    requests.memory: 8Gi
+    limits.cpu: "16"
+    limits.memory: 64Gi
+
+    requests.nvidia.com/gpu: "1"
+    
+    # Restrict total object counts to prevent cluster clutter
+    pods: "20"
+    count/statefulsets: "2" # Limits the number of concurrent Notebook servers
+    persistentvolumeclaims: "3" # Limits total volume claims
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-user-limits
+spec:
+  limits:
+  - default: # Default limits if not specified
+      cpu: "2"
+      memory: 4Gi
+    defaultRequest: # Default requests if not specified
+      cpu: "1"
+      memory: 2Gi
+    type: Container
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: seaweedfs-s3-credentials
+  namespace: llm-lab   # 3. Matches the namespace name above
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: seaweedfs-s3-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: access_key
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: secret_key
