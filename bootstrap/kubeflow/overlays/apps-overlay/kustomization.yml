@@ -49,13 +49,21 @@ patches:
   - target:
       kind: Deployment
       name: jupyter-web-app-deployment
+      namespace: kubeflow
     path: patches/jupyter-web-app-deployment.yml
+
+  - target:
+      kind: Deployment
+      name: notebook-controller-deployment
+      namespace: kubeflow
+    path: patches/notebook-controller-deployment.yml
+
 
   - target:
       kind: Deployment
       name: ml-pipeline
       namespace: kubeflow
-    path: patches/api-server.yml
+    path: patches/ml-pipeline.yml
   
   - target:
       kind: ConfigMap
