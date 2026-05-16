@@ -34,8 +34,10 @@ configMapGenerator:
 - name: jupyter-web-app-config
   behavior: merge
   files:
-    - patches/spawner_ui_config.yaml
+    - patches/spawner_ui_config.yml
 
+configurations:
+  - params.yaml
 
 
 patches:
