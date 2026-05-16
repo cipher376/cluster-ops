@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: jupyter-web-app-config
-  namespace: kubeflow
-data:
-  spawner_ui_config.yaml: |
-    # --- Automatically checks the GPU node option on the form ---
-    spawnerFormDefaults:
-      allowCustomImage: true
-      tolerationGroup:
-        value: "gpu-pool"
+#   name: jupyter-web-app-config
+#   namespace: kubeflow
+# data:
+#   spawner_ui_config.yaml: |
+#     # --- Automatically checks the GPU node option on the form ---
+#     spawnerFormDefaults:
+#       allowCustomImage: true
+#       tolerationGroup:
+#         value: "gpu-pool"
         
-    # --- Injects the exact keys needed to bypass your NoExecute taint ---
-    tolerationsGroups:
-      - groupKey: "gpu-pool"
-        displayName: "Dedicated NVIDIA GPU Node Pool"
-        tolerations:
-          - key: "dedicated"
-            operator: "Equal"
-            value: "gpu"
-            effect: "NoExecute"
-          - key: "dedicated"
-            operator: "Equal"
-            value: "gpu"
-            effect: "NoSchedule"
+#     # --- Injects the exact keys needed to bypass your NoExecute taint ---
+#     tolerationsGroups:
+#       - groupKey: "gpu-pool"
+#         displayName: "Dedicated NVIDIA GPU Node Pool"
+#         tolerations:
+#           - key: "dedicated"
+#             operator: "Equal"
+#             value: "gpu"
+#             effect: "NoExecute"
+#           - key: "dedicated"
+#             operator: "Equal"
+#             value: "gpu"
+#             effect: "NoSchedule"

@@ -41,10 +41,10 @@ patches:
       namespace: kubeflow
     path: patches/launcher-config.yml
   
-  - target:
-      kind: ConfigMap
-      name: jupyter-web-app-config
-    path: patches/jupyter-ui-config.yml
+  # - target:
+  #     kind: ConfigMap
+  #     name: jupyter-web-app-config
+  #   path: patches/jupyter-ui-config.yml
 
   - target:
       kind: Deployment
