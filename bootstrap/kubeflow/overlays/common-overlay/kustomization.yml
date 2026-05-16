@@ -52,14 +52,14 @@ configMapGenerator:
   - name: ca-pemstore
     namespace: llm-lab
     files:
-    - ca.crt=root-ca.crt
+    - ca.crt=patches/root-ca.crt
     options:
       disableNameSuffixHash: true
       
   - name: ca-pemstore
     namespace: kubeflow
     files:
-    - ca.crt=root-ca.crt
+    - ca.crt=patches/root-ca.crt
     options:
       disableNameSuffixHash: true
 
