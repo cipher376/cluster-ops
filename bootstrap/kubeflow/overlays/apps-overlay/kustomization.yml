@@ -46,6 +46,10 @@ patches:
       name: jupyter-web-app-config
     path: patches/jupyter-ui-config.yml
 
+  - target:
+      kind: Deployment
+      name: jupyter-web-app-deployment
+    path: patches/jupyter-web-app-deployment.yml
 
   - target:
       kind: Deployment
