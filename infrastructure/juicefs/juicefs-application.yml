@@ -78,16 +78,16 @@ spec:
         # --- Sidecar Images (Latest stable versions) ---
         sidecars:
           csiProvisionerImage:
-            repository: quay.io/k8scsi/csi-provisioner
+            repository: registry.k8s.io/sig-storage/csi-provisioner
             tag: v3.6.0
           csiResizerImage:
-            repository: quay.io/k8scsi/csi-resizer
+            repository: registry.k8s.io/sig-storage/csi-resizer
             tag: v1.9.0
           livenessProbeImage:
-            repository: quay.io/k8scsi/livenessprobe
+            repository: registry.k8s.io/sig-storage/livenessprobe
             tag: v2.11.0
           nodeDriverRegistrarImage:
-            repository: quay.io/k8scsi/csi-node-driver-registrar
+            repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
             tag: v2.9.0
         
         # --- Validating Webhook ---
@@ -118,8 +118,9 @@ spec:
                 - name: verify_ssl
                   value: false
             mountOptions:
-              - cache-size=10240
-              - free-space-ratio=0.1
+              - cache-size=102400              # 100GB (use full disk)
+              - cache-dir=/mnt/juicefs-cache   # Use the dedicated disk
+              - free-space-ratio=0.1           # Keep 10% free space (10GB)
               - enable-ioctl
             mountPod:
               resources:
