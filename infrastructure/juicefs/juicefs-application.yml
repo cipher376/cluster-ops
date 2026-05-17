@@ -111,6 +111,14 @@ spec:
           - name: juicefs-sc
             enabled: true
             reclaimPolicy: Delete
+            parameters:
+              name: seaweedfs-volume
+              storage: s3
+              bucket: https://s3.seaweedfs.ncs-cloud.lan
+              csi.storage.k8s.io/node-publish-secret-name: juicefs-sc-secret
+              csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+              csi.storage.k8s.io/provisioner-secret-name: juicefs-sc-secret
+              csi.storage.k8s.io/provisioner-secret-namespace: kube-system
             backend:
               name: seaweedfs-volume
               storage: s3
