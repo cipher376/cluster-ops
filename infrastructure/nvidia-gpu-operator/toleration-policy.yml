@@ -4,7 +4,8 @@ metadata:
   name: gpu-cluster-policy
   namespace: gpu-operator
 spec:
-  daemonsets:
+  driver:
+    enabled: false
     tolerations:
     - key: "dedicated"
       operator: "Equal"
@@ -14,3 +15,52 @@ spec:
       operator: "Equal"
       value: "gpu"
       effect: "NoExecute"
+  
+  toolkit:
+    enabled: true
+    tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoExecute"
+  
+  devicePlugin:
+    enabled: true
+    tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoExecute"
+  
+  gfd:
+    enabled: true
+    tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoExecute"
+  
+  dcgm:
+    enabled: false
+  
+  dcgmExporter:
+    enabled: false
+  
+  nodeStatusExporter:
+    enabled: false
+  
+  operator:
+    enabled: true
+  
