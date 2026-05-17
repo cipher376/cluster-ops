@@ -163,13 +163,18 @@ spec:
   target:
     name: juicefs-sc-secret
     creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        accesskey: "{{ .accesskey }}"
+        secretkey: "{{ .secretkey }}"
+        name: "seaweedfs-volume"
+        storage: "s3"
+        bucket: "https://s3.seaweedfs.ncs-cloud.lan"
+        configs: |
+          - name: verify_ssl
+            value: false
   data:
-    - name: seaweedfs-volume
-    - storage: s3
-    - bucket: https://s3.seaweedfs.ncs-cloud.lan
-    - configs: |
-        - name: verify_ssl
-          value: false
     - secretKey: accesskey
       remoteRef:
         key: seaweedfs/s3/admin-role
