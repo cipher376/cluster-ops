@@ -17,9 +17,10 @@ spec:
           enabled: false  # Driver already installed on host OS
         
         toolkit:
-          enabled: false
+          enabled: true
         
         devicePlugin:
+          enabled: true
           config:
             name: time-slicing-config
             create: true
