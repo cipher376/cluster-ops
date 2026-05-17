@@ -14,10 +14,10 @@ spec:
     helm:
       values: |
         driver:
-          enabled: true  # Driver already installed on host OS
+          enabled: false  # Driver already installed on host OS
         
         toolkit:
-          enabled: true
+          enabled: false
           tolerations:
             - key: "dedicated"
               operator: "Equal"
