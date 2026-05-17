@@ -39,11 +39,17 @@ spec:
           enabled: true
           serviceMonitor:
             enabled: false  # Set to true if you have Prometheus Operator
+          nodeSelector:
+            nvidia.com/gpu: 1
         
         nodeFeatureDiscovery:
           enabled: true
+          nodeSelector:
+            nvidia.com/gpu: 1
         
         validator:
+          nodeSelector:
+            nvidia.com/gpu: 1
           plugin:
             env:
               - name: NVIDIA_VISIBLE_DEVICES
@@ -68,8 +74,8 @@ spec:
         
         # Node selector for GPU nodes (adjust labels as needed)
         nodeSelector:
-          nvidia.com/gpu : "true"
-          nvidia.com/gpu : 1
+          hardware: gpu
+          nvidia.com/gpu: 1
 
         # Tolerations for GPU nodes (if they have taints)
         tolerations:
