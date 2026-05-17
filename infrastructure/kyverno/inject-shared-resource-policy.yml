@@ -138,11 +138,11 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: clone-externalsecret
+  name: generate-seaweedfs-externalsecret
 spec:
   generateExisting: true
   rules:
-    - name: clone-externalsecret-to-all-namespaces
+    - name: generate-externalsecret
       match:
         any:
           - resources:
@@ -165,6 +165,22 @@ spec:
         kind: ExternalSecret
         name: "seaweedfs-s3-credentials"
         namespace: "{{request.object.metadata.name}}"
-        clone:
-          namespace: "kubeflow"
-          name: "seaweedfs-s3-credentials"
+        data:
+          kind: ExternalSecret
+          spec:
+            refreshInterval: "1h"
+            secretStoreRef:
+              name: vault-backend
+              kind: ClusterSecretStore
+            target:
+              name: seaweedfs-s3-credentials
+              creationPolicy: Owner
+            data:
+              - secretKey: AWS_ACCESS_KEY_ID
+                remoteRef:
+                  key: seaweedfs/s3/admin-role
+                  property: access_key
+              - secretKey: AWS_SECRET_ACCESS_KEY
+                remoteRef:
+                  key: seaweedfs/s3/admin-role
+                  property: secret_key
