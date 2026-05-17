@@ -53,14 +53,25 @@ spec:
       effect: "NoExecute"
   
   dcgm:
-    enabled: false
+    enabled: true
   
   dcgmExporter:
-    enabled: false
+    enabled: true
   
   nodeStatusExporter:
-    enabled: false
+    enabled: true
   
   operator:
     enabled: true
+  
+  daemonsets:
+    tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    - key: "dedicated"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoExecute"
   
