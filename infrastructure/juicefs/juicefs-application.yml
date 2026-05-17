@@ -113,8 +113,6 @@ spec:
             reclaimPolicy: Delete
             parameters:
               name: seaweedfs-volume
-              storage: s3
-              bucket: https://s3.seaweedfs.ncs-cloud.lan
               csi.storage.k8s.io/node-publish-secret-name: juicefs-sc-secret
               csi.storage.k8s.io/node-publish-secret-namespace: kube-system
               csi.storage.k8s.io/provisioner-secret-name: juicefs-sc-secret
@@ -161,25 +159,25 @@ spec:
         maxDuration: 3m
 
 ---
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: juicefs-sc-secret
-  namespace: kube-system
-spec:
-  refreshInterval: "1h"
-  secretStoreRef:
-    name: vault-backend
-    kind: ClusterSecretStore
-  target:
-    name: juicefs-sc-secret
-    creationPolicy: Owner
-  data:
-    - secretKey: accesskey
-      remoteRef:
-        key: seaweedfs/s3/admin-role
-        property: access_key
-    - secretKey: secretkey
-      remoteRef:
-        key: seaweedfs/s3/admin-role
-        property: secret_key
+# apiVersion: external-secrets.io/v1
+# kind: ExternalSecret
+# metadata:
+#   name: juicefs-sc-secret
+#   namespace: kube-system
+# spec:
+#   refreshInterval: "1h"
+#   secretStoreRef:
+#     name: vault-backend
+#     kind: ClusterSecretStore
+#   target:
+#     name: juicefs-sc-secret
+#     creationPolicy: Owner
+#   data:
+#     - secretKey: accesskey
+#       remoteRef:
+#         key: seaweedfs/s3/admin-role
+#         property: access_key
+#     - secretKey: secretkey
+#       remoteRef:
+#         key: seaweedfs/s3/admin-role
+#         property: secret_key
