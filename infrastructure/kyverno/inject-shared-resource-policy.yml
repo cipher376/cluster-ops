@@ -121,7 +121,7 @@ spec:
         #   value:
         #   - "kubeflow-user-*"   # wildcard match (requires Kyverno 1.8+)
         # Alternatively, use a label:
-        - key: "{{ request.namespace.labels.kubeflow\\.org/username }}"
+        - key: "kubeflow.org/profile"
           operator: NotEquals
           value: ""
       mutate:
