@@ -171,9 +171,7 @@ spec:
         name: "seaweedfs-volume"
         storage: "s3"
         bucket: "https://s3.seaweedfs.ncs-cloud.lan"
-        configs: |
-          - name: verify_ssl
-            value: false
+        
   data:
     - secretKey: accesskey
       remoteRef:
