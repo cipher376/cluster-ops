@@ -75,3 +75,39 @@ spec:
       value: "gpu"
       effect: "NoExecute"
   
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-gpu-tolerations
+  annotations:
+    policies.kyverno.io/title: Add GPU Tolerations to DaemonSets
+    policies.kyverno.io/category: GPU
+spec:
+  background: true
+  rules:
+    - name: add-tolerations-to-daemonsets
+      match:
+        any:
+        - resources:
+            kinds:
+              - DaemonSet
+            namespaces:
+              - gpu-operator
+            names:
+              - "gpu-operator-node-feature-discovery-worker"
+              - "nvidia-device-plugin-daemonset"
+      mutate:
+        patchStrategicMerge:
+          spec:
+            template:
+              spec:
+                tolerations:
+                - key: "dedicated"
+                  operator: "Equal"
+                  value: "gpu"
+                  effect: "NoSchedule"
+                - key: "dedicated"
+                  operator: "Equal"
+                  value: "gpu"
+                  effect: "NoExecute"
