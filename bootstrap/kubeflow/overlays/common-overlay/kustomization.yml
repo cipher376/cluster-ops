@@ -71,7 +71,7 @@ configMapGenerator:
       disableNameSuffixHash: true
 
   - name: ca-pemstore
-    namespace: nvidi-device-plugin
+    namespace: nvidia-device-plugin
     files:
     - ca.crt=patches/root-ca.crt
     options:
