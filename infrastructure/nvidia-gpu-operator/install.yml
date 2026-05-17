@@ -14,7 +14,7 @@ spec:
     helm:
       values: |
         driver:
-          enabled: false  # Driver already installed on host OS
+          enabled: true  # Driver already installed on host OS
         
         toolkit:
           enabled: true
