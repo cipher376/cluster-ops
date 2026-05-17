@@ -1,0 +1,29 @@
+# save as kyverno-externalsecret-rbac.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyverno-generate-externalsecret
+rules:
+- apiGroups: ["external-secrets.io"]
+  resources: ["externalsecrets", "externalsecrets/status"]
+  verbs: ["create", "update", "delete", "get", "list", "watch", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kyverno-generate-externalsecret
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kyverno-generate-externalsecret
+subjects:
+- kind: ServiceAccount
+  name: kyverno-background-controller
+  namespace: kyverno
+- kind: ServiceAccount
+  name: kyverno-admission-controller
+  namespace: kyverno
