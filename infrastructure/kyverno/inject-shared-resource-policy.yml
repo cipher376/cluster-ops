@@ -186,3 +186,33 @@ spec:
                   property: secret_key
 
 ---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-gpu-tolerations
+spec:
+  background: true
+  rules:
+    - name: add-tolerations-to-pods
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      preconditions:
+        all:
+        - key: "{{ request.object.spec.containers[].resources.limits.\"nvidia.com/gpu\" || '' }}"
+          operator: NotEquals
+          value: ""
+      mutate:
+        patchStrategicMerge:
+          spec:
+            tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
