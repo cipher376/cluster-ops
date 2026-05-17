@@ -69,7 +69,8 @@ spec:
         # Node selector for GPU nodes (adjust labels as needed)
         nodeSelector:
           nvidia.com/gpu : "true"
-        
+          nvidia.com/gpu : 1
+
         # Tolerations for GPU nodes (if they have taints)
         tolerations:
         - key: "dedicated"
