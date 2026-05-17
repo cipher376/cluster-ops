@@ -25,7 +25,7 @@ spec:
             enabled: true
           nodeSelector:
             hardware: gpu
-            nvidia.com/gpu: true
+            nvidia.com/gpu.present: true
             nvidia.com/gpu: "1"
           tolerations:
             - key: "dedicated"
@@ -49,7 +49,7 @@ spec:
           enabled: true
           nodeSelector:
             hardware: gpu
-            nvidia.com/gpu: true
+            nvidia.com/gpu.present: true
             nvidia.com/gpu: "1"
           tolerations:
             - key: "dedicated"
@@ -156,7 +156,7 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: juicefs-s3-secret
+  name: juicefs-sc-secret
   namespace: kube-system
 spec:
   refreshInterval: "1h"
@@ -164,7 +164,7 @@ spec:
     name: vault-backend
     kind: ClusterSecretStore
   target:
-    name: juicefs-s3-secret
+    name: juicefs-sc-secret
     creationPolicy: Owner
   data:
     - secretKey: accesskey
