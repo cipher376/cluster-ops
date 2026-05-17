@@ -99,69 +99,69 @@ spec:
                         name: seaweedfs-s3-credentials
                         key: AWS_SECRET_ACCESS_KEY
 
-# ---
-# apiVersion: kyverno.io/v1
-# kind: GeneratingPolicy
-# metadata:
-#   name: clone-cert-configmap
-# spec:
-#   rules:
-#     - name: clone-configmap-to-all-namespaces
-#       match:
-#         any:
-#           - resources:
-#               kinds:
-#                 - Namespace
-#       generate:
-#         apiVersion: v1
-#         kind: ConfigMap
-#         name: "ca-pemstore"  # Name of the ConfigMap to be created
-#         namespace: "{{ request.object.metadata.name }}"
-#         synchronize: true  # Keeps the copy updated if the source changes
-#         clone:
-#           namespace: "kubeflow"  # Where your source ConfigMap lives
-#           name: "ca-pemstore"   # Name of the source ConfigMap
-#       exclude:
-#         any:
-#           - resources:
-#               namespaces:
-#                 - kube-system
-#                 - kube-public
-#                 - cert-manager
-#                 - kyverno
-#                 - argocd
-#                 - istio-system
+---
+apiVersion: kyverno.io/v1
+kind: GeneratingPolicy
+metadata:
+  name: clone-cert-configmap
+spec:
+  rules:
+    - name: clone-configmap-to-all-namespaces
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+      generate:
+        apiVersion: v1
+        kind: ConfigMap
+        name: "ca-pemstore"  # Name of the ConfigMap to be created
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true  # Keeps the copy updated if the source changes
+        clone:
+          namespace: "kubeflow"  # Where your source ConfigMap lives
+          name: "ca-pemstore"   # Name of the source ConfigMap
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - cert-manager
+                - kyverno
+                - argocd
+                - istio-system
 
-# ---
-# apiVersion: kyverno.io/v1
-# kind: GeneratingPolicy
-# metadata:
-#   name: clone-seaweedfs-secret
-# spec:
-#   rules:
-#     - name: clone-externalsecret-to-all-namespaces
-#       match:
-#         any:
-#           - resources:
-#               kinds:
-#                 - Namespace
-#       generate:
-#         apiVersion: external-secrets.io/v1
-#         kind: ExternalSecret
-#         name: "seaweedfs-s3-credentials"
-#         namespace: "{{ request.object.metadata.name }}"
-#         synchronize: true
-#         clone:
-#           namespace: "kubeflow"  # Source namespace where the ExternalSecret exists
-#           name: "seaweedfs-s3-credentials"
-#       exclude:
-#         any:
-#           - resources:
-#               namespaces:
-#                 - kube-system
-#                 - kube-public
-#                 - cert-manager
-#                 - kyverno
-#                 - argocd
-#                 - istio-system
-#                 - external-secrets
+---
+apiVersion: kyverno.io/v1
+kind: GeneratingPolicy
+metadata:
+  name: clone-seaweedfs-secret
+spec:
+  rules:
+    - name: clone-externalsecret-to-all-namespaces
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+      generate:
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        name: "seaweedfs-s3-credentials"
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true
+        clone:
+          namespace: "kubeflow"  # Source namespace where the ExternalSecret exists
+          name: "seaweedfs-s3-credentials"
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - cert-manager
+                - kyverno
+                - argocd
+                - istio-system
+                - external-secrets
