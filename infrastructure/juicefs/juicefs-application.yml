@@ -1,0 +1,173 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: juicefs-csi-driver
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Install early before storage-dependent workloads
+spec:
+  project: default
+  source:
+    repoURL: https://juicedata.github.io/charts/
+    chart: juicefs-csi-driver
+    targetRevision: 0.31.0  # Latest stable version
+    helm:
+      values: |
+        # --- Kubelet Configuration (K3s specific) ---
+        kubeletDir: /var/lib/kubelet
+        
+        # --- Controller Configuration ---
+        controller:
+          enabled: true
+          replicas: 2                    # HA with 2 replicas
+          provisioner: true
+          leaderElection:
+            enabled: true
+          nodeSelector:
+            nvidia.com/gpu.present: "true"
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        
+        # --- Node Service Configuration ---
+        node:
+          enabled: true
+          nodeSelector:
+            hardware: "gpu"
+            nvidia.com/gpu: "true"
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        
+        # --- Mount Pod Resources (For LLM workloads) ---
+        mountPod:
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 2Gi
+            limits:
+              cpu: 8000m
+              memory: 8Gi
+        
+        # --- Sidecar Images (Latest stable versions) ---
+        sidecars:
+          csiProvisionerImage:
+            repository: quay.io/k8scsi/csi-provisioner
+            tag: v3.6.0
+          csiResizerImage:
+            repository: quay.io/k8scsi/csi-resizer
+            tag: v1.9.0
+          livenessProbeImage:
+            repository: quay.io/k8scsi/livenessprobe
+            tag: v2.11.0
+          nodeDriverRegistrarImage:
+            repository: quay.io/k8scsi/csi-node-driver-registrar
+            tag: v2.9.0
+        
+        # --- Validating Webhook ---
+        validatingWebhook:
+          enabled: true
+        
+        # --- Service Accounts ---
+        serviceAccount:
+          controller:
+            create: true
+            name: juicefs-csi-controller-sa
+          node:
+            create: true
+            name: juicefs-csi-node-sa
+        
+        # --- StorageClass Configuration (SeaweedFS S3) ---
+        storageClasses:
+          - name: juicefs-sc
+            enabled: true
+            reclaimPolicy: Delete
+            backend:
+              name: seaweedfs-volume
+              storage: s3
+              bucket: https://s3.seaweedfs.ncs-cloud.lan
+              accessKey: ""   # Will use secret (see extraResources below)
+              secretKey: ""   # Will use secret
+              configs: |
+                - name: verify_ssl
+                  value: false
+            mountOptions:
+              - cache-size=10240
+              - free-space-ratio=0.1
+              - enable-ioctl
+            mountPod:
+              resources:
+                requests:
+                  cpu: 2000m
+                  memory: 2Gi
+                limits:
+                  cpu: 8000m
+                  memory: 8Gi
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false   # kube-system already exists
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: juicefs-s3-secret
+  namespace: kube-system
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: juicefs-s3-secret
+    creationPolicy: Owner
+  data:
+    - secretKey: accesskey
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: access_key
+    - secretKey: secretkey
+      remoteRef:
+        key: seaweedfs/s3/admin-role
+        property: secret_key
