@@ -70,6 +70,13 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
 
+  - name: ca-pemstore
+    namespace: nvidi-device-plugin
+    files:
+    - ca.crt=patches/root-ca.crt
+    options:
+      disableNameSuffixHash: true
+
 secretGenerator:
   - name: dex-keycloak-config
     namespace: auth
