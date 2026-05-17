@@ -1,0 +1,98 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gpu-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Install before GPU-dependent workloads
+spec:
+  project: default
+  source:
+    repoURL: https://nvidia.github.io/gpu-operator
+    chart: gpu-operator
+    targetRevision: v26.3.1  # Latest stable version
+    helm:
+      values: |
+        driver:
+          enabled: false  # Driver already installed on host OS
+        
+        toolkit:
+          enabled: false
+        
+        devicePlugin:
+          config:
+            name: time-slicing-config
+            create: true
+            default: "any"
+            data:
+              any: |
+                version: v1
+                sharing:
+                  timeSlicing:
+                    resources:
+                    - name: nvidia.com/gpu
+                      replicas: 4
+                      # Optionally limit requests per pod
+                      # failRequestsGreaterThanOne: true
+        
+        dcgmExporter:
+          enabled: true
+          serviceMonitor:
+            enabled: false  # Set to true if you have Prometheus Operator
+        
+        nodeFeatureDiscovery:
+          enabled: true
+        
+        validator:
+          plugin:
+            env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                value: all
+        
+        operator:
+          runtimeClassName: nvidia  # For K3s, you may need to adjust
+        
+        # K3s specific: Disable certain validations that may fail
+        platform:
+          os: linux
+          arch: amd64
+        
+        # Reduce resource requests for smaller nodes
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        
+        # Node selector for GPU nodes (adjust labels as needed)
+        nodeSelector:
+          nvidia.com/gpu.present: "true"
+        
+        # Tolerations for GPU nodes (if they have taints)
+        tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoSchedule"
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoExecute"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gpu-operator
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true  # Helps with CRD updates
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

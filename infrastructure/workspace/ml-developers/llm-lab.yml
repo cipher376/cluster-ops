@@ -40,7 +40,7 @@ spec:
     limits.cpu: "16"
     limits.memory: 64Gi
 
-    requests.nvidia.com/gpu: "1"
+    requests.nvidia.com/gpu: "10"
     
     # Restrict total object counts to prevent cluster clutter
     pods: "20"
