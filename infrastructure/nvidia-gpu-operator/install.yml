@@ -18,9 +18,27 @@ spec:
         
         toolkit:
           enabled: true
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
         
         devicePlugin:
           enabled: true
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
           config:
             name: time-slicing-config
             create: true
@@ -42,15 +60,42 @@ spec:
             enabled: false  # Set to true if you have Prometheus Operator
           nodeSelector:
             nvidia.com/gpu: 1
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
         
         nodeFeatureDiscovery:
           enabled: true
           nodeSelector:
             nvidia.com/gpu: 1
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
         
         validator:
           nodeSelector:
             nvidia.com/gpu: 1
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoSchedule"
+            - key: "dedicated"
+              operator: "Equal"
+              value: "gpu"
+              effect: "NoExecute"
           plugin:
             env:
               - name: NVIDIA_VISIBLE_DEVICES
