@@ -189,7 +189,7 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: add-gpu-tolerations
+  name: add-gpu-tolerations-profile
 spec:
   background: true
   rules:
