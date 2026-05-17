@@ -35,7 +35,7 @@ metadata:
 spec:
   hard:
     # CPU and Memory ceilings across all pods in this namespace combined
-    requests.cpu: "5"
+    requests.cpu: "8"
     requests.memory: 8Gi
     limits.cpu: "16"
     limits.memory: 64Gi
@@ -43,7 +43,7 @@ spec:
     requests.nvidia.com/gpu: "2"
     
     # Restrict total object counts to prevent cluster clutter
-    pods: "20"
+    pods: "10"
     count/statefulsets: "2" # Limits the number of concurrent Notebook servers
     persistentvolumeclaims: "10" # Limits total volume claims
 ---
