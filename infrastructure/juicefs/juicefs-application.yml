@@ -24,7 +24,9 @@ spec:
           leaderElection:
             enabled: true
           nodeSelector:
-            nvidia.com/gpu.present: "true"
+            hardware: "true"
+            nvidia.com/gpu: 1
+            nvidia.com/gpu: "true"
           tolerations:
             - key: "dedicated"
               operator: "Equal"
@@ -48,6 +50,7 @@ spec:
           nodeSelector:
             hardware: "gpu"
             nvidia.com/gpu: "true"
+            nvidia.com/gpu: 1
           tolerations:
             - key: "dedicated"
               operator: "Equal"
