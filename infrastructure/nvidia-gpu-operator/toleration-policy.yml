@@ -17,7 +17,7 @@ spec:
       effect: "NoExecute"
   
   toolkit:
-    enabled: true
+    enabled: false
     tolerations:
     - key: "dedicated"
       operator: "Equal"
