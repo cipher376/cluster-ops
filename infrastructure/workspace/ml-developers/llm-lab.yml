@@ -20,6 +20,7 @@ spec:
   selector:
     matchLabels:
       gpu-tolerations: "true" # This is the label to match
+      inject-shared-resource: "enabled"   # Kyverno injects CA and S3 credentials
   tolerations: # Your tolerations configuration
     - key: "dedicated"
       operator: "Equal"
