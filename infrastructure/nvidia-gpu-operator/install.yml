@@ -72,18 +72,30 @@ spec:
         
         nodeFeatureDiscovery:
           enabled: true
-          nodeSelector:
-            nvidia.com/gpu: 1
+          worker:
+            nodeSelector:
+              nvidia.com/gpu: 1
+            tolerations:
+              - key: "dedicated"
+                operator: "Equal"
+                value: "gpu"
+                effect: "NoSchedule"
+              - key: "dedicated"
+                operator: "Equal"
+                value: "gpu"
+                effect: "NoExecute"
+                
+        daemonsets:
           tolerations:
-            - key: "dedicated"
-              operator: "Equal"
-              value: "gpu"
-              effect: "NoSchedule"
-            - key: "dedicated"
-              operator: "Equal"
-              value: "gpu"
-              effect: "NoExecute"
-        
+          - key: dedicated
+            operator: Equal
+            value: gpu
+            effect: NoSchedule
+          - key: dedicated
+            operator: Equal
+            value: gpu
+            effect: NoExecute
+
         validator:
           nodeSelector:
             nvidia.com/gpu: 1
