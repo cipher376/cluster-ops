@@ -84,17 +84,20 @@ spec:
                 operator: "Equal"
                 value: "gpu"
                 effect: "NoExecute"
-                
+
         daemonsets:
-          tolerations:
-          - key: dedicated
-            operator: Equal
-            value: gpu
-            effect: NoSchedule
-          - key: dedicated
-            operator: Equal
-            value: gpu
-            effect: NoExecute
+          spec:
+            template:
+              spec:
+                tolerations:
+                  - key: dedicated
+                    operator: Equal
+                    value: gpu
+                    effect: NoSchedule
+                  - key: dedicated
+                    operator: Equal
+                    value: gpu
+                    effect: NoExecute
 
         validator:
           nodeSelector:
