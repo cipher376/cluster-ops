@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: redis
-    targetRevision: 19.5.5  # Latest stable version
+    targetRevision: 25.4.1  # Latest stable version
     helm:
       values: |
         # --- Global Settings ---
