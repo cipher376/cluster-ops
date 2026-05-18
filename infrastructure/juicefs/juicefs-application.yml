@@ -164,7 +164,7 @@ spec:
     template:
       type: Opaque
       data:
-        metaurl: "redis://your-redis-host:6379/1"
+        metaurl: "redis://:{{ .redis_password }}@redis-juicefs-master.juicefs-metadata.svc.cluster.local:6379/1"
         accesskey: "{{ .accesskey }}"
         secretkey: "{{ .secretkey }}"
         name: "seaweedfs-volume"
@@ -174,8 +174,12 @@ spec:
           - name: verify_ssl
             value: false
         # Optional but recommended
-        format-options: "trash-days=1,block-size=4096"
+        format-options: "trash-days=1,block-size=4096,compression=lz4"
   data:
+    - secretKey: redis_password
+      remoteRef:
+        key: db/redis
+        property: redis_db_password
     - secretKey: accesskey
       remoteRef:
         key: seaweedfs/s3/admin-role
