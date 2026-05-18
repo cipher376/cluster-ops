@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-juicefs
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"  # Install before JuiceFS
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: redis
+    targetRevision: 19.5.5  # Latest stable version
+    helm:
+      values: |
+        # --- Global Settings ---
+        global:
+          storageClass: "local-path"  # Adjust to your K3s storage class
+        
+        # --- Architecture ---
+        architecture: standalone  # Use 'replication' for HA
+        
+        # --- Master Configuration ---
+        master:
+          count: 1
+          persistence:
+            enabled: true
+            size: 10Gi
+            accessModes:
+              - ReadWriteOnce
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          # nodeSelector:
+            # Don't use GPU nodes for Redis (save GPUs for workloads)
+            # hardware: "cpu"
+          tolerations: []
+            
+        
+        # --- Redis Configuration ---
+        auth:
+          enabled: true
+          password: "juicefs-redis-password"  # CHANGE THIS! Use external-secrets in production
+        
+        # --- Performance Tuning for JuiceFS ---
+        master:
+          configuration: |-
+            maxmemory 1gb
+            maxmemory-policy allkeys-lru
+            save ""  # Disable persistence if using as cache only
+            appendonly no
+            appendfsync no
+        
+        # --- Service Configuration ---
+        service:
+          type: ClusterIP
+          ports:
+            redis: 6379
+        
+        # --- Metrics (optional, for monitoring) ---
+        metrics:
+          enabled: true  # Enable if you have Prometheus
+          serviceMonitor:
+            enabled: true
+        
+        # --- Update Strategy ---
+        updateStrategy:
+          type: RollingUpdate
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: juicefs-metadata  # Dedicated namespace for JuiceFS metadata services
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
