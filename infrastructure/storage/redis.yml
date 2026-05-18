@@ -1,27 +1,4 @@
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: redis-auth-es
-  namespace: juicefs-metadata
-  annotations:
-    argocd.argoproj.io/sync-wave: "-4"  # Create before Redis application
-spec:
-  refreshInterval: "1h"
-  secretStoreRef:
-    name: vault-backend
-    kind: ClusterSecretStore
-  target:
-    name: redis-auth-secret
-    creationPolicy: Owner
-    template:
-      type: Opaque
-      data:
-        redis-password: "{{ .redis_db_password }}"
-  data:
-    - secretKey: redis_db_password
-      remoteRef:
-        key: db/redis
-        property: redis_db_password
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -29,7 +6,7 @@ metadata:
   name: redis-juicefs
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-3"  # Install before JuiceFS
+    argocd.argoproj.io/sync-wave: "-2"  # Install before JuiceFS
 spec:
   project: default
   source:
@@ -129,3 +106,28 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: redis-auth-es
+  namespace: juicefs-metadata
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"  # Create before Redis application
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: redis-auth-secret
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        redis-password: "{{ .redis_db_password }}"
+  data:
+    - secretKey: redis_db_password
+      remoteRef:
+        key: db/redis
+        property: redis_db_password
