@@ -171,9 +171,9 @@ spec:
         name: "seaweedfs-volume"
         storage: "s3"
         bucket: "https://s3.seaweedfs.ncs-cloud.lan"
-        configs: |
-          - name: verify_ssl
-            value: false
+        # configs: |
+        #   - name: verify_ssl
+        #     value: false
         # Optional but recommended
         format-options: "trash-days=1,block-size=4096,compression=lz4"
   data:
