@@ -101,8 +101,6 @@ kind: ExternalSecret
 metadata:
   name: redis-auth-es
   namespace: juicefs-metadata
-  annotations:
-    argocd.argoproj.io/sync-wave: "-2"  # Create before Redis application
 spec:
   refreshInterval: "1h"
   secretStoreRef:
