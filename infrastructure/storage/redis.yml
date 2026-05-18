@@ -58,7 +58,6 @@ spec:
           configuration: |-
             maxmemory 1gb
             maxmemory-policy allkeys-lru
-            save ""  # Disable persistence if using as cache only
             appendonly no
             appendfsync no
         
