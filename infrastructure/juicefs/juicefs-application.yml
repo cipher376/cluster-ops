@@ -175,7 +175,7 @@ spec:
         #   - name: verify_ssl
         #     value: false
         # Optional but recommended
-        format-options: "trash-days=1,block-size=4096,compression=lz4"
+        format-options: "trash-days=1,block-size=4096"
   data:
     - secretKey: redis_password
       remoteRef:
