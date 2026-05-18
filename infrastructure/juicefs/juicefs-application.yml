@@ -231,7 +231,7 @@ spec:
         bucket: "https://s3.seaweedfs.ncs-cloud.lan"
         configs: |
           [s3]
-          verify_ssl = true
+          verify_ssl = false
           ca-cert = /etc/ssl/certs/ca.crt
         format-options: "trash-days=1,block-size=4096"
   data:
