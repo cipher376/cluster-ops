@@ -16,6 +16,12 @@ spec:
         # --- Kubelet Configuration (K3s specific) ---
         kubeletDir: /var/lib/kubelet
         
+        global:
+         caCerts:
+           enabled: true
+           configMap: ca-pemstore
+           key: ca.crt
+
         # --- Controller Configuration ---
         controller:
           enabled: true
@@ -247,3 +253,21 @@ spec:
       remoteRef:
         key: seaweedfs/s3/admin-role
         property: secret_key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
