@@ -55,6 +55,10 @@ spec:
                   key: AWS_SECRET_ACCESS_KEY
             - name: AWS_REGION
               value: "us-east-1"  # Optional: Set if your S3 requires region
+            - name: SSL_CERT_FILE
+              value: /etc/ssl/certs/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/certs/ca.crt
           extraVolumes:
             - name: ca-certs
               configMap:
