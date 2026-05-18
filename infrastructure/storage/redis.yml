@@ -1,45 +1,25 @@
 
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: redis-juicefs
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-2"  # Install before JuiceFS
+    argocd.argoproj.io/sync-wave: "-3"  # Install before JuiceFS
 spec:
   project: default
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: redis
-    targetRevision: 25.4.1
+    targetRevision: 25.4.1   # Latest stable version
     helm:
       values: |
-        # --- Image Configuration ---
-        image:
-          registry: docker.io
-          repository: soldevelo/redis
-          tag: 8.6-debian-12
-        
-        # --- Helper Images ---
-        volumePermissions:
-          image:
-            registry: bitnami.azurecr.io
-            repository: bitnami/os-shell
-            tag: 12-debian-12-r15
-        
-        sysctl:
-          image:
-            registry: bitnami.azurecr.io
-            repository: bitnami/os-shell
-            tag: 12-debian-12-r15
-        
         # --- Global Settings ---
         global:
-          storageClass: "local-path"
+          storageClass: "local-path"  # Adjust to your K3s storage class
         
         # --- Architecture ---
-        architecture: standalone
+        architecture: standalone  # Use 'replication' for HA
         
         # --- Master Configuration ---
         master:
@@ -56,20 +36,31 @@ spec:
             limits:
               cpu: 1000m
               memory: 2Gi
-          tolerations: []
-          # Use existing secret instead of plaintext password
-          configuration: |-
-            maxmemory 1gb
-            maxmemory-policy allkeys-lru
-            save ""
-            appendonly no
-            appendfsync no
+
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: "true"
+          tolerations:
+            - key: "node-role.kubernetes.io/control-plane"
+              operator: "Exists"
+              effect: "NoSchedule"
+            - key: "node-role.kubernetes.io/control-plane"
+              operator: "Exists"
+              effect: "NoExecute"
         
-        # --- Redis Authentication (Reference existing secret) ---
+        # --- Redis Configuration ---
         auth:
           enabled: true
           existingSecret: "redis-auth-secret"
           existingSecretPasswordKey: "redis-password"
+        
+        # --- Performance Tuning for JuiceFS ---
+        master:
+          configuration: |-
+            maxmemory 1gb
+            maxmemory-policy allkeys-lru
+            save ""  # Disable persistence if using as cache only
+            appendonly no
+            appendfsync no
         
         # --- Service Configuration ---
         service:
@@ -77,13 +68,11 @@ spec:
           ports:
             redis: 6379
         
-        # --- Metrics ---
+        # --- Metrics (optional, for monitoring) ---
         metrics:
-          enabled: true
+          enabled: false  # Enable if you have Prometheus
           serviceMonitor:
-            enabled: true
-            namespace: juicefs-metadata
-            interval: 30s
+            enabled: false
         
         # --- Update Strategy ---
         updateStrategy:
@@ -91,7 +80,7 @@ spec:
   
   destination:
     server: https://kubernetes.default.svc
-    namespace: juicefs-metadata
+    namespace: juicefs-metadata  # Dedicated namespace for JuiceFS metadata services
   
   syncPolicy:
     automated:
