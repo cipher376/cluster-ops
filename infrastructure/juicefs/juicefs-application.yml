@@ -153,6 +153,8 @@ kind: ExternalSecret
 metadata:
   name: juicefs-sc-secret-es
   namespace: kube-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"  # Install early before storage-dependent workloads
 spec:
   refreshInterval: "1h"
   secretStoreRef:
