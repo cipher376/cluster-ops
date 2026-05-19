@@ -26,10 +26,10 @@ spec:
         name: "seaweedfs-volume"
         storage: "s3"
         bucket: "https://s3.seaweedfs.ncs-cloud.lan"
-        configs: |
-          [s3]
-          verify_ssl = false
-          ca-cert = /etc/ssl/certs/ca.crt
+        # configs: |
+        #   [s3]
+        #   verify_ssl = true
+        #   ca-cert = /etc/ssl/certs/ca.crt
         format-options: "trash-days=1,block-size=4096"
   data:
     - secretKey: redis_password
@@ -46,3 +46,48 @@ spec:
         property: secret_key
 
 
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: juicefs-sc
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+provisioner: csi.juicefs.com
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+parameters:
+  name: seaweedfs-volume
+  csi.storage.k8s.io/node-publish-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+  csi.storage.k8s.io/provisioner-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+  # Pass CA cert to mount pods
+  juicefs/mount-ca-certs: ca-pemstore
+  juicefs/mount-ca-certs-key: ca.crt
+
+  # Mount pod resource configuration
+  juicefs/mount-cpu-limit: "8000m"
+  juicefs/mount-cpu-request: "2000m"
+  juicefs/mount-memory-limit: 8Gi
+  juicefs/mount-memory-request: 2Gi
+
+
+mountOptions:
+  - cache-size=102400
+  - cache-dir=/mnt/juicefs-cache
+  - free-space-ratio=0.1
+  # Performance optimizations for LLM workloads
+  - enable-ioctl
+  - attr-cache=3                  # Attribute cache timeout (seconds)
+  - entry-cache=3                 # Entry cache timeout (seconds)
+  - dir-entry-cache=3             # Directory entry cache timeout
+  - max-uploads=20                # Max concurrent uploads (default 20)
+  - max-deletes=10                # Max concurrent deletes (default 10)
+  # Optional: For large file performance
+  - writeback                     # Enable writeback cache
+  - buffer-size=300               # I/O buffer size (MiB)
+  - prefetch=3                    # Prefetch blocks for sequential reads
+  # Optional: Metrics and monitoring
+  - metrics=0.0.0.0:9567          # Enable metrics endpoint
