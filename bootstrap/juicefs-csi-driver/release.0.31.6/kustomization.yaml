@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: kube-system
 resources:
 - patches/resource.yaml
-- patches/storageclass.yaml
 - ../base
 
 configMapGenerator:
