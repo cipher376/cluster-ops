@@ -1,0 +1,30 @@
+# This patch modifies the CSI driver configuration to set mount pod defaults
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: juicefs-csi-driver-config
+  namespace: kube-system
+data:
+  config.yaml: |
+    mountPod:
+      resources:
+        requests:
+          cpu: 2000m
+          memory: 2Gi
+        limits:
+          cpu: 8000m
+          memory: 8Gi
+      extraVolumes:
+        - name: ca-certs
+          configMap:
+            name: ca-pemstore
+            defaultMode: 0444
+      extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /etc/ssl/certs/ca.crt
+          subPath: ca.crt
+      env:
+        - name: SSL_CERT_FILE
+          value: /etc/ssl/certs/ca.crt
+        - name: NODE_EXTRA_CA_CERTS
+          value: /etc/ssl/certs/ca.crt

@@ -3,7 +3,7 @@ kind: Kustomization
 # MUST be kube-system for pods with system-cluster-critical priorityClass
 namespace: kube-system
 resources:
-- resource.yml
+- patches/resource.yaml
 - ../base
 
 configMapGenerator:
@@ -18,6 +18,26 @@ patches:
 - path: statefulset.yaml
   target:
     kind: StatefulSet
+
+- path: patches/juicefs-controller.yaml
+  target:
+    kind: StatefulSet
+    name: juicefs-csi-controller
+
+- path: patches/juicefs-node.yaml
+  target:
+    kind: DaemonSet
+    name: juicefs-csi-node
+
+- path: patches/mount-pod-config.yaml
+  target:
+    kind: ConfigMap
+    name: juicefs-csi-driver-config
+
+- path: patches/storageclass.yaml
+  target:
+    kind: StorageClass
+    name: juicefs-sc
 
 - patch: |-
     $patch: delete

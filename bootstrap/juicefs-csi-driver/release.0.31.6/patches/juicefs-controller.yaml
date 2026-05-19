@@ -22,7 +22,27 @@ spec:
           effect: "NoExecute"
       containers:
         - name: juicefs-plugin
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
           env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-sc-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-sc-secret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_REGION
+              value: "us-east-1"
             - name: SSL_CERT_FILE
               value: /etc/ssl/certs/ca.crt
             - name: NODE_EXTRA_CA_CERTS
@@ -40,29 +60,3 @@ spec:
             defaultMode: 0444
         - name: webhook-certs
           $patch: delete
----
-# Add CA certs to node daemonset
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: juicefs-csi-node
-  namespace: kube-system
-spec:
-  template:
-    spec:
-      containers:
-        - name: juicefs-plugin
-          env:
-            - name: SSL_CERT_FILE
-              value: /etc/ssl/certs/ca.crt
-            - name: NODE_EXTRA_CA_CERTS
-              value: /etc/ssl/certs/ca.crt
-          volumeMounts:
-            - name: ca-certs
-              mountPath: /etc/ssl/certs/ca.crt
-              subPath: ca.crt
-      volumes:
-        - name: ca-certs
-          configMap:
-            name: ca-pemstore
-            defaultMode: 0444

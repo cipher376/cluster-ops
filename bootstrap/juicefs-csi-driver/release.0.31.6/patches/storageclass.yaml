@@ -1,0 +1,22 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: juicefs-sc
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+provisioner: csi.juicefs.com
+reclaimPolicy: Delete
+parameters:
+  name: seaweedfs-volume
+  csi.storage.k8s.io/node-publish-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+  csi.storage.k8s.io/provisioner-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+  # Pass CA cert to mount pods
+  juicefs/mount-ca-certs: ca-pemstore
+  juicefs/mount-ca-certs-key: ca.crt
+mountOptions:
+  - cache-size=102400
+  - cache-dir=/mnt/juicefs-cache
+  - free-space-ratio=0.1
+  - enable-ioctl

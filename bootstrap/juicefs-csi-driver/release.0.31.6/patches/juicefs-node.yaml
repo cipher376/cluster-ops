@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: juicefs-csi-node
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      # Add node selector for GPU nodes
+      nodeSelector:
+        hardware: "gpu"
+        nvidia.com/gpu.present: "true"
+      
+      # Add tolerations for GPU nodes
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoSchedule"
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoExecute"
+      
+      containers:
+        - name: juicefs-plugin
+          # Update resources
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          
+          # Add environment variables
+          env:
+            - name: SSL_CERT_FILE
+              value: /etc/ssl/certs/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/certs/ca.crt
+          
+          # Add volume mount for CA certificate
+          volumeMounts:
+            - name: ca-certs
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: ca.crt
+      
+      # Add CA certificate volume
+      volumes:
+        - name: ca-certs
+          configMap:
+            name: ca-pemstore
+            defaultMode: 0444
