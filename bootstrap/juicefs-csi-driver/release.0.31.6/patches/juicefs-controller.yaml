@@ -51,6 +51,8 @@ spec:
             - name: ca-certs
               mountPath: /etc/ssl/certs/ca.crt
               subPath: ca.crt
+            - name: juicefs-config
+              mountPath: /etc/config
             - name: webhook-certs
               $patch: delete
       volumes:
