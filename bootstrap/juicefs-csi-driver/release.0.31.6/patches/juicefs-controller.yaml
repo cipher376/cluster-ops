@@ -53,6 +53,8 @@ spec:
               subPath: ca.crt
             - name: juicefs-config
               mountPath: /etc/config
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy/
             - name: webhook-certs
               $patch: delete
       volumes:
@@ -65,6 +67,8 @@ spec:
           configMap:
             name: juicefs-csi-driver-config
             defaultMode: 420
-        
+        - name: socket-dir
+          emptyDir: {}
+
         - name: webhook-certs
           $patch: delete
