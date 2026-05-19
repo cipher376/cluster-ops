@@ -7,9 +7,9 @@ metadata:
 spec:
   template:
     spec:
-      nodeSelector:
-        hardware: "gpu"
-        nvidia.com/gpu.present: "true"
+      # nodeSelector:
+      #   hardware: "gpu"
+      #   nvidia.com/gpu.present: "true"
       # Add tolerations
       tolerations:
         - key: "dedicated"

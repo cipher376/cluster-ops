@@ -7,9 +7,9 @@ spec:
   template:
     spec:
       # Add node selector for GPU nodes
-      nodeSelector:
-        hardware: "gpu"
-        nvidia.com/gpu.present: "true"
+      # nodeSelector:
+      #   hardware: "gpu"
+      #   nvidia.com/gpu.present: "true"
       
       # Add tolerations for GPU nodes
       tolerations:
