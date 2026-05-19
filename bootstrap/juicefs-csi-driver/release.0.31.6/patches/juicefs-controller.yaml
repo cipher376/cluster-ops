@@ -58,5 +58,11 @@ spec:
           configMap:
             name: ca-pemstore
             defaultMode: 0444
+        
+        - name: juicefs-config
+          configMap:
+            name: juicefs-csi-driver-config
+            defaultMode: 420
+        
         - name: webhook-certs
           $patch: delete
