@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: kube-system
 resources:
 - patches/resource.yaml
+- patches/storageclass.yaml
 - ../base
 
 configMapGenerator:
@@ -34,10 +35,10 @@ patches:
     kind: ConfigMap
     name: juicefs-csi-driver-config
 
-- path: patches/storageclass.yaml
-  target:
-    kind: StorageClass
-    name: juicefs-sc
+# - path: patches/storageclass.yaml
+#   target:
+#     kind: StorageClass
+#     name: juicefs-sc
 
 - patch: |-
     $patch: delete
