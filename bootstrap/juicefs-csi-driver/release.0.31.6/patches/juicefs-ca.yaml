@@ -1,0 +1,68 @@
+# Remove webhook certs from controller
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: juicefs-csi-controller
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      nodeSelector:
+        hardware: "gpu"
+        nvidia.com/gpu.present: "true"
+      # Add tolerations
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoSchedule"
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoExecute"
+      containers:
+        - name: juicefs-plugin
+          env:
+            - name: SSL_CERT_FILE
+              value: /etc/ssl/certs/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/certs/ca.crt
+          volumeMounts:
+            - name: ca-certs
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: ca.crt
+            - name: webhook-certs
+              $patch: delete
+      volumes:
+        - name: ca-certs
+          configMap:
+            name: ca-pemstore
+            defaultMode: 0444
+        - name: webhook-certs
+          $patch: delete
+---
+# Add CA certs to node daemonset
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: juicefs-csi-node
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: juicefs-plugin
+          env:
+            - name: SSL_CERT_FILE
+              value: /etc/ssl/certs/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/certs/ca.crt
+          volumeMounts:
+            - name: ca-certs
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: ca.crt
+      volumes:
+        - name: ca-certs
+          configMap:
+            name: ca-pemstore
+            defaultMode: 0444

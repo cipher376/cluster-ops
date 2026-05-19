@@ -3,11 +3,22 @@ kind: Kustomization
 # MUST be kube-system for pods with system-cluster-critical priorityClass
 namespace: kube-system
 resources:
+- resource.yml
 - ../base
+
+configMapGenerator:
+  - name: ca-pemstore
+    namespace: kube-system
+    files:
+    - ca.crt=patches/root-ca.crt
+    options:
+      disableNameSuffixHash: true
+
 patches:
 - path: statefulset.yaml
   target:
     kind: StatefulSet
+
 - patch: |-
     $patch: delete
     kind: Service
