@@ -64,13 +64,6 @@ configMapGenerator:
       disableNameSuffixHash: true
 
   - name: ca-pemstore
-    namespace: kube-system
-    files:
-    - ca.crt=patches/root-ca.crt
-    options:
-      disableNameSuffixHash: true
-
-  - name: ca-pemstore
     namespace: gitlab-runner
     files:
     - ca.crt=patches/root-ca.crt

@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: juicefs-csi-driver-bootstrap
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2" # Lowest number syncs first
+spec:
+  project: default
+  source:
+    repoURL: 'https://gitlab.ncs-cloud.lan/ml/cluster-ops.git'
+    targetRevision: HEAD
+    path: bootstrap/juicefs-csi-driver/release.0.31.6
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - SkipDryRunOnMissingResource=true # 100% required for Kubeflow
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
