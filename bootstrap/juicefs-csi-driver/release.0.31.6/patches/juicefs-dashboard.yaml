@@ -1,72 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: juicefs-csi-dashboard
-  namespace: kube-system
-spec:
-  template:
-    spec:
-      volumes:
-        - name: auth-volume
-          secret:
-            secretName: juicefs-dashboard-auth
-      containers:
-        - name: dashboard
-        - name: auth-proxy
-          image: nginx:alpine
-          ports:
-            - containerPort: 18088
-              name: auth-http
-          volumeMounts:
-            - name: auth-volume
-              mountPath: /etc/nginx/auth
-              readOnly: true
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              cat << 'EOF' > /etc/nginx/conf.d/default.conf
-              server {
-                  listen 18088;
-                  
-                  # Require password across all paths
-                  auth_basic "JuiceFS Admin Console Authentication Required";
-                  auth_basic_user_file /etc/nginx/auth/auth;
-
-                  # Intercept framework 404s returned from the container
-                  proxy_intercept_errors on;
-                  error_page 404 = @fallback;
-
-                  location / {
-                      proxy_pass http://127.0.0.1:8088;
-                      
-                      # Forward and preserve upstream proxy headers
-                      proxy_set_header Host $host;
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                      
-                      # Enable live streaming web sockets
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                      
-                      proxy_read_timeout 86400s;
-                      proxy_send_timeout 86400s;
-                  }
-
-                  # The fallback path for browser refreshes on sub-pages
-                  location @fallback {
-                      # Safely rewrite the requested URL to the root path internally
-                      rewrite ^ / break;
-                      
-                      # Clean proxy pass with no extra paths attached to the string
-                      proxy_pass http://127.0.0.1:8088;
-                      
-                      proxy_set_header Host $host;
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                  }
-              }
-              EOF
-              exec nginx -g 'daemon off;'
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: juicefs-csi-dashboard
+#   namespace: kube-system
+# spec:
+#   template:
+#     spec:
+#       containers:
+#         - name: dashboard
+#           auth:
+#             enabled: "true"

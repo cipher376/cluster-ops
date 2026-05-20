@@ -17,4 +17,4 @@ spec:
       backendRefs:
         - name: juicefs-csi-dashboard
           namespace: kube-system
-          port: 18088 # Target the safe proxy port
+          port: 8088 # Target the safe proxy port

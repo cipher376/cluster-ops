@@ -34,10 +34,10 @@ patches:
     kind: ConfigMap
     name: juicefs-csi-driver-config
 
-- path: patches/juicefs-dashboard.yaml
-  target:
-    kind: Deployment
-    name: juicefs-csi-dashboard
+# - path: patches/juicefs-dashboard.yaml
+#   target:
+#     kind: Deployment
+#     name: juicefs-csi-dashboard
 
 
 - patch: |-
