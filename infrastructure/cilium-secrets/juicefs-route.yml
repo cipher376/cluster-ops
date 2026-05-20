@@ -17,4 +17,4 @@ spec:
       backendRefs:
         - name: juicefs-csi-dashboard
           namespace: kube-system
-          port: 8089 # Route traffic directly into the security sidecar proxy
+          port: 18088 # Target the safe proxy port

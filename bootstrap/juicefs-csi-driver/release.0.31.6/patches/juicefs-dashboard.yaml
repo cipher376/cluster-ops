@@ -11,15 +11,14 @@ spec:
           secret:
             secretName: juicefs-dashboard-auth
       containers:
-        # 1. The original JuiceFS dashboard container (Leave it untouched)
+        # 1. The original JuiceFS dashboard container (Left completely untouched)
         - name: dashboard
-          # No manual port environment overrides needed since it ignores them
 
-        # 2. The Nginx reverse-proxy sidecar (Shifted to port 8089)
+        # 2. The Nginx reverse-proxy sidecar (Shifted to isolated port 18088)
         - name: auth-proxy
           image: nginx:alpine
           ports:
-            - containerPort: 8089
+            - containerPort: 18088
               name: auth-http
           volumeMounts:
             - name: auth-volume
@@ -30,12 +29,12 @@ spec:
             - |
               cat << 'EOF' > /etc/nginx/conf.d/default.conf
               server {
-                  listen 8089;
+                  listen 18088;
                   location / {
                       auth_basic "JuiceFS Admin Console Authentication Required";
                       auth_basic_user_file /etc/nginx/auth/auth;
                       
-                      # Proxy directly to the native dashboard container interface
+                      # Safely route straight into the local host network dashboard loop
                       proxy_pass http://127.0.0.1:8088;
                       
                       proxy_set_header Host $host;
