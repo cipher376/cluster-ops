@@ -16,7 +16,7 @@ spec:
           image: nginx:alpine
           ports:
             - containerPort: 18088
-              name: http
+              name: auth-http
           volumeMounts:
             - name: auth-volume
               mountPath: /etc/nginx/auth
@@ -28,28 +28,44 @@ spec:
               server {
                   listen 18088;
                   
-                  # Enforce password gate globally
+                  # Require password across all paths
                   auth_basic "JuiceFS Admin Console Authentication Required";
                   auth_basic_user_file /etc/nginx/auth/auth;
 
+                  # Intercept framework 404s returned from the container
+                  proxy_intercept_errors on;
+                  error_page 404 = @fallback;
+
                   location / {
-                      # Direct proxy straight to the dashboard container
                       proxy_pass http://127.0.0.1:8088;
                       
-                      # Re-inject and preserve multi-hop headers from your upstream proxies
+                      # Forward and preserve upstream proxy headers
                       proxy_set_header Host $host;
                       proxy_set_header X-Real-IP $remote_addr;
                       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
                       proxy_set_header X-Forwarded-Proto $scheme;
                       
-                      # Crucial: Explicitly forward UI deep-links back to root if the dashboard engine misses them
-                      error_page 404 = @fallback;
+                      # Enable live streaming web sockets
+                      proxy_http_version 1.1;
+                      proxy_set_header Upgrade $http_upgrade;
+                      proxy_set_header Connection "upgrade";
+                      
+                      proxy_read_timeout 86400s;
+                      proxy_send_timeout 86400s;
                   }
 
+                  # The fallback path for browser refreshes on sub-pages
                   location @fallback {
-                      # Forces an internal path rewrite to / to load the app skeleton
-                      proxy_pass http://127.0.0.1:8088/;
+                      # Safely rewrite the requested URL to the root path internally
+                      rewrite ^ / break;
+                      
+                      # Clean proxy pass with no extra paths attached to the string
+                      proxy_pass http://127.0.0.1:8088;
+                      
                       proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
                   }
               }
               EOF
