@@ -30,9 +30,6 @@ spec:
       operator: "Equal"
       value: "gpu"
       effect: "NoSchedule"
-  nodeSelector:
-    hardware: "gpu"
-    nvidia.com/gpu.present: "true"
   # Environment variables
   env:
     - name: JUICEFS_DATA_DIR
