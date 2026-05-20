@@ -6,7 +6,45 @@ metadata:
 data:
   config.yaml: |
     mountPodPatch:
-      - env:
+      # Override the command to add format check
+      - command:
+        - /bin/sh
+        - -c
+        - |
+          #!/bin/sh
+          set -e
+          
+          echo "=== JuiceFS Mount Pod Starting ==="
+          
+          # Get credentials from the secret
+          METAURL=$(cat /secret/metaurl)
+          ACCESSKEY=$(cat /secret/accesskey)
+          SECRETKEY=$(cat /secret/secretkey)
+          BUCKET=$(cat /secret/bucket)
+          NAME=$(cat /secret/name)
+          
+          echo "Checking if volume '$NAME' is formatted..."
+          
+          # Check if volume is already formatted
+          if juicefs status "$METAURL" 2>/dev/null; then
+            echo "Volume already formatted, skipping format step"
+          else
+            echo "Volume not formatted, formatting now..."
+            juicefs format \
+              --storage s3 \
+              --bucket "$BUCKET" \
+              --access-key "$ACCESSKEY" \
+              --secret-key "$SECRETKEY" \
+              --trash-days 1 \
+              --block-size 4096 \
+              "$METAURL" \
+              "$NAME"
+            echo "✅ Format completed successfully"
+          fi
+          
+          echo "Mounting JuiceFS volume..."
+          exec /usr/local/bin/juicefs mount "$METAURL" /jfs
+        env:
           - name: SSL_CERT_FILE
             value: /etc/ssl/certs/ca.crt
           - name: NODE_EXTRA_CA_CERTS
@@ -15,11 +53,17 @@ data:
           - name: ca-certs
             mountPath: /etc/ssl/certs/ca.crt
             subPath: ca.crt
+          - name: secret
+            mountPath: /secret
+            readOnly: true
         volumes:
           - name: ca-certs
             configMap:
               name: ca-pemstore
               defaultMode: 0444
+          - name: secret
+            secret:
+              secretName: juicefs-sc-secret
         resources:
           requests:
             cpu: 2000m
