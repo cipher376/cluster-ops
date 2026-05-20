@@ -28,51 +28,28 @@ spec:
               server {
                   listen 18088;
                   
-                  # Mandate authentication across all nested routing contexts
+                  # Enforce password gate globally
                   auth_basic "JuiceFS Admin Console Authentication Required";
                   auth_basic_user_file /etc/nginx/auth/auth;
 
-                  # 1. ALLOW static assets to stream through directly
-                  location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-                      proxy_pass http://127.0.0.1:8088;
-                      proxy_set_header Host $host;
-                  }
-
-                  # 2. ALLOW internal cluster metrics/data APIs to stream directly
-                  location /api {
-                      proxy_pass http://127.0.0.1:8088;
-                      proxy_set_header Host $host;
-                      
-                      # Keep dynamic streaming metrics active
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                  }
-
-                  # 3. INTERCEPT human UI routes and rewrites to root index
                   location / {
-                      # If the path is not a file (-f) or folder (-d), internally 
-                      # rewrite the request header to / so the app container initializes cleanly.
-                      # The browser address bar stays unchanged!
-                      if (!-e $request_filename) {
-                          rewrite ^(.*)$ / break;
-                      }
-
+                      # Direct proxy straight to the dashboard container
                       proxy_pass http://127.0.0.1:8088;
                       
-                      # Maintain proxy chains through Edge Nginx and Cilium Envoy layers
+                      # Re-inject and preserve multi-hop headers from your upstream proxies
                       proxy_set_header Host $host;
                       proxy_set_header X-Real-IP $remote_addr;
                       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
                       proxy_set_header X-Forwarded-Proto $scheme;
                       
-                      # General WebSocket fallbacks
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                      
-                      proxy_read_timeout 86400s;
-                      proxy_send_timeout 86400s;
+                      # Crucial: Explicitly forward UI deep-links back to root if the dashboard engine misses them
+                      error_page 404 = @fallback;
+                  }
+
+                  location @fallback {
+                      # Forces an internal path rewrite to / to load the app skeleton
+                      proxy_pass http://127.0.0.1:8088/;
+                      proxy_set_header Host $host;
                   }
               }
               EOF
