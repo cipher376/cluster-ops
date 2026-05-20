@@ -91,3 +91,27 @@ mountOptions:
   - prefetch=3                    # Prefetch blocks for sequential reads
   # Optional: Metrics and monitoring
   - metrics=0.0.0.0:9567          # Enable metrics endpoint
+
+
+---
+# juicefs-dashboard-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: juicefs-dashboard-route
+  namespace: istio-system  # Must match Gateway namespace
+spec:
+  parentRefs:
+    - name: cilium-gateway-istio
+      namespace: istio-system
+  hostnames:
+    - "juicefs.ncs-cloud.lan"  # Replace with your domain
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: juicefs-csi-dashboard
+          namespace: kube-system
+          port: 80
