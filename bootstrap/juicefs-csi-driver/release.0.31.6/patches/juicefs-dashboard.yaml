@@ -11,12 +11,12 @@ spec:
           secret:
             secretName: juicefs-dashboard-auth
       containers:
-        # 1. The original JuiceFS dashboard container (Left completely untouched)
+        # 1. The original JuiceFS dashboard container 
         - name: dashboard
 
         # 2. The Nginx reverse-proxy sidecar (Shifted to isolated port 18088)
         - name: auth-proxy
-          image: nginx:alpine
+          image: nginx:alpine 
           ports:
             - containerPort: 18088
               name: http
