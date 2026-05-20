@@ -74,3 +74,8 @@ data:
     controller:
       leaderElection:
         enabled: true
+    dashboard:
+      enabled: true
+      auth:
+        enabled: true
+        existingSecret: juicefs-sc-secret 

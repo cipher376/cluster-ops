@@ -21,6 +21,8 @@ spec:
         secretkey: "{{ .secretkey }}"
         access-key: "{{ .accesskey }}"
         secret-key: "{{ .secretkey }}"
+        username: "{{ .juice_username }}" #dashboard
+        password: "{{ .juice_password }}" #dashboard
         AWS_ACCESS_KEY_ID: "{{ .accesskey }}"
         AWS_SECRET_ACCESS_KEY: "{{ .secretkey }}"
         name: "seaweedfs-volume"
@@ -44,8 +46,14 @@ spec:
       remoteRef:
         key: seaweedfs/s3/admin-role
         property: secret_key
-
-
+    - secretKey: juice_username
+      remoteRef:
+        key: juicefs/dashboard
+        property: user
+    - secretKey: juice_password
+      remoteRef:
+        key: juicefs/dashboard
+        property: password
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -93,25 +101,3 @@ mountOptions:
   - metrics=0.0.0.0:9567          # Enable metrics endpoint
 
 
----
-# juicefs-dashboard-route.yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: juicefs-dashboard-route
-  namespace: istio-system  # Must match Gateway namespace
-spec:
-  parentRefs:
-    - name: cilium-gateway-istio
-      namespace: istio-system
-  hostnames:
-    - "juicefs.ncs-cloud.lan"  # Replace with your domain
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: juicefs-csi-dashboard
-          namespace: kube-system
-          port: 80
