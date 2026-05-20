@@ -21,17 +21,11 @@ spec:
         secretkey: "{{ .secretkey }}"
         access-key: "{{ .accesskey }}"
         secret-key: "{{ .secretkey }}"
-        username: "{{ .juice_username }}" #dashboard
-        password: "{{ .juice_password }}" #dashboard
         AWS_ACCESS_KEY_ID: "{{ .accesskey }}"
         AWS_SECRET_ACCESS_KEY: "{{ .secretkey }}"
         name: "seaweedfs-volume"
         storage: "s3"
         bucket: "https://s3.seaweedfs.ncs-cloud.lan"
-        # configs: |
-        #   [s3]
-        #   verify_ssl = true
-        #   ca-cert = /etc/ssl/certs/ca.crt
         format-options: "trash-days=1,block-size=4096"
   data:
     - secretKey: redis_password
@@ -46,6 +40,30 @@ spec:
       remoteRef:
         key: seaweedfs/s3/admin-role
         property: secret_key
+   
+
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: juicefs-sc-secret-es
+  namespace: kube-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"  # Install early before storage-dependent workloads
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: juicefs-dashboard-auth
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        username: "{{ .juice_username }}" #dashboard
+        password: "{{ .juice_password }}" #dashboard
+  data:
     - secretKey: juice_username
       remoteRef:
         key: juicefs/dashboard

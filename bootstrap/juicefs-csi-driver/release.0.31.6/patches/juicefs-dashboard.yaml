@@ -6,20 +6,41 @@ metadata:
 spec:
   template:
     spec:
+      volumes:
+        - name: auth-volume
+          secret:
+            secretName: juicefs-dashboard-auth
       containers:
+        # 1. The original dashboard container (Listening locally inside the pod)
         - name: dashboard
+          # Ensure it listens on localhost loopback inside the pod block
           env:
-            # Enable basic authentication
-            - name: AUTH_ENABLED
-              value: "true"
-            # Set username and password from secret
-            - name: AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: juicefs-sc-secret
-                  key: username
-            - name: AUTH_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: juicefs-sc-secret
-                  key: password
+            - name: HOST
+              value: "127.0.0.1"
+
+        # 2. The secure proxy guard container (Exposing the entry port 8088 to the cluster)
+        - name: auth-proxy
+          image: nginx:alpine
+          ports:
+            - containerPort: 8088
+              name: http
+          volumeMounts:
+            - name: auth-volume
+              mountPath: /etc/nginx/auth
+              readOnly: true
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat << 'EOF' > /etc/nginx/conf.d/default.conf
+              server {
+                  listen 8088;
+                  location / {
+                      auth_basic "JuiceFS Admin Console Authentication Required";
+                      auth_basic_user_file /etc/nginx/auth/auth;
+                      proxy_pass http://127.0.0.1:8088;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                  }
+              }
+              EOF
+              exec nginx -g 'daemon off;'
