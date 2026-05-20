@@ -34,10 +34,11 @@ patches:
     kind: ConfigMap
     name: juicefs-csi-driver-config
 
-# - path: patches/storageclass.yaml
-#   target:
-#     kind: StorageClass
-#     name: juicefs-sc
+- path: patches/juicefs-dashboard.yaml
+  target:
+    kind: Deployment
+    name: juicefs-csi-dashboard
+
 
 - patch: |-
     $patch: delete
