@@ -16,7 +16,7 @@ spec:
           image: nginx:alpine
           ports:
             - containerPort: 18088
-              name: auth-http
+              name: http
           volumeMounts:
             - name: auth-volume
               mountPath: /etc/nginx/auth
