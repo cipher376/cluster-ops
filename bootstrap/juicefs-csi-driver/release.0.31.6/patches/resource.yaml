@@ -94,10 +94,10 @@ parameters:
   juicefs/mount-ca-certs-key: ca.crt
 
   # Mount pod resource configuration
-  juicefs/mount-cpu-limit: "8000m"
-  juicefs/mount-cpu-request: "2000m"
-  juicefs/mount-memory-limit: 8Gi
-  juicefs/mount-memory-request: 2Gi
+  juicefs/mount-cpu-limit: "4"
+  juicefs/mount-cpu-request: "100m"
+  juicefs/mount-memory-limit: 2Gi
+  juicefs/mount-memory-request: 500Mi
 
 
 mountOptions:
