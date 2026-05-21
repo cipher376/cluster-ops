@@ -88,7 +88,7 @@ metadata:
 spec:
   hard:
     # CPU and Memory ceilings across all pods in this namespace combined
-    requests.cpu: "8"
+    requests.cpu: "10"
     requests.memory: 32Gi
     limits.cpu: "16"
     limits.memory: 64Gi
@@ -107,10 +107,10 @@ metadata:
 spec:
   limits:
   - default: # Default limits if not specified
-      cpu: "8"
+      cpu: "10"
       memory: 16Gi
     defaultRequest: # Default requests if not specified
-      cpu: "8"
+      cpu: "10"
       memory: 16Gi
     type: Container
 ---
