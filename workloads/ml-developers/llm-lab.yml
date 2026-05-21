@@ -32,8 +32,6 @@ spec:
       effect: "NoSchedule"
   # Environment variables
   env:
-    - name: JUICEFS_DATA_DIR
-      value: /data
     - name: JUICEFS_MODELS_DIR
       value: /models
     - name: JUICEFS_CHECKPOINTS_DIR
@@ -56,8 +54,6 @@ spec:
     - name: NODE_EXTRA_CA_CERTS
       value: /etc/ssl/certs/ca.crt
   volumeMounts:
-    - name: juicefs-data
-      mountPath: /data
     - name: juicefs-models
       mountPath: /models
     - name: juicefs-checkpoints
@@ -66,9 +62,6 @@ spec:
       mountPath: /etc/ssl/certs/ca.crt
       subPath: ca.crt
   volumes:
-    - name: juicefs-data
-      persistentVolumeClaim:
-        claimName: kubeflow-shared-data
     - name: juicefs-models
       persistentVolumeClaim:
         claimName: kubeflow-models
@@ -100,7 +93,6 @@ spec:
     count/statefulsets: "2" # Limits the number of concurrent Notebook servers
     persistentvolumeclaims: "10" # Limits total volume claims
 
-
 ---
 apiVersion: v1
 kind: LimitRange
@@ -108,13 +100,23 @@ metadata:
   name: default-user-limits
 spec:
   limits:
-  - default: # Default limits if not specified
+  - type: Container
+    # 1. The maximum ceiling allowed for any single container
+    max:
       cpu: "10"
       memory: 24Gi
-    defaultRequest: # Default requests if not specified
-      cpu: "10"
-      memory: 24Gi
-    type: Container
+    # 2. The absolute minimum allowed for any single container
+    min:
+      cpu: "100m"
+      memory: 256Mi
+    # 3. Injected automatically if the user leaves "limits" completely blank
+    default:
+      cpu: "1"
+      memory: 2Gi
+    # 4. Injected automatically if the user leaves "requests" completely blank
+    defaultRequest:
+      cpu: "500m"
+      memory: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

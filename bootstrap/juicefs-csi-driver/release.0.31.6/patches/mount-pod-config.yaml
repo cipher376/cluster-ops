@@ -69,7 +69,7 @@ data:
             cpu: 100m
             memory: 500Mi
           limits:
-            cpu: 4000m
+            cpu: 4
             memory: 2Gi
     controller:
       leaderElection:
