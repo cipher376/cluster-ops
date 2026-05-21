@@ -30,7 +30,6 @@ spec:
       operator: "Equal"
       value: "gpu"
       effect: "NoSchedule"
-  # Environment variables
   env:
     - name: JUICEFS_MODELS_DIR
       value: /models
