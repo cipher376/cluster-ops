@@ -80,17 +80,17 @@ metadata:
 spec:
   hard:
     # CPU and Memory ceilings across all pods in this namespace combined
-    requests.cpu: "48"
-    requests.memory: 64Gi
-    limits.cpu: "48"
-    limits.memory: 64Gi
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
 
-    requests.nvidia.com/gpu: "2"
+    requests.nvidia.com/gpu: "1"
     
     # Restrict total object counts to prevent cluster clutter
-    pods: "10"
+    pods: "5"
     count/statefulsets: "2" # Limits the number of concurrent Notebook servers
-    persistentvolumeclaims: "10" # Limits total volume claims
+    persistentvolumeclaims: "3" # Limits total volume claims
 
 ---
 apiVersion: v1
@@ -102,8 +102,8 @@ spec:
   - type: Container
     # 1. The maximum ceiling allowed for any single container
     max:
-      cpu: "10"
-      memory: 24Gi
+      cpu: "2"
+      memory: 2Gi
     # 2. The absolute minimum allowed for any single container
     min:
       cpu: "100m"
