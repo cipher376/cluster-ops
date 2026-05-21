@@ -88,9 +88,9 @@ metadata:
 spec:
   hard:
     # CPU and Memory ceilings across all pods in this namespace combined
-    requests.cpu: "10"
-    requests.memory: 32Gi
-    limits.cpu: "24"
+    requests.cpu: "48"
+    requests.memory: 64Gi
+    limits.cpu: "48"
     limits.memory: 64Gi
 
     requests.nvidia.com/gpu: "2"
@@ -99,14 +99,7 @@ spec:
     pods: "10"
     count/statefulsets: "2" # Limits the number of concurrent Notebook servers
     persistentvolumeclaims: "10" # Limits total volume claims
-  limits:
-  - default: # Default limits if not specified
-      cpu: "10"
-      memory: 16Gi
-    defaultRequest: # Default requests if not specified
-      cpu: "10"
-      memory: 16Gi
-    type: Container
+
 
 ---
 apiVersion: v1
@@ -116,11 +109,11 @@ metadata:
 spec:
   limits:
   - default: # Default limits if not specified
-      cpu: "2"
-      memory: 4Gi
+      cpu: "10"
+      memory: 24Gi
     defaultRequest: # Default requests if not specified
-      cpu: "500m"
-      memory: 1Gi
+      cpu: "10"
+      memory: 24Gi
     type: Container
 ---
 apiVersion: v1
