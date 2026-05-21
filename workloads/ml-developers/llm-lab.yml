@@ -90,7 +90,7 @@ spec:
     # CPU and Memory ceilings across all pods in this namespace combined
     requests.cpu: "10"
     requests.memory: 32Gi
-    limits.cpu: "16"
+    limits.cpu: "24"
     limits.memory: 64Gi
 
     requests.nvidia.com/gpu: "2"
@@ -99,12 +99,6 @@ spec:
     pods: "10"
     count/statefulsets: "2" # Limits the number of concurrent Notebook servers
     persistentvolumeclaims: "10" # Limits total volume claims
----
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: default-user-limits
-spec:
   limits:
   - default: # Default limits if not specified
       cpu: "10"
@@ -113,19 +107,21 @@ spec:
       cpu: "10"
       memory: 16Gi
     type: Container
+
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: LimitRange
 metadata:
-  name: kubeflow-shared-data
-  namespace: llm-lab
+  name: default-user-limits
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Gi
-  storageClassName: juicefs-sc
+  limits:
+  - default: # Default limits if not specified
+      cpu: "2"
+      memory: 4Gi
+    defaultRequest: # Default requests if not specified
+      cpu: "500m"
+      memory: 1Gi
+    type: Container
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -137,7 +133,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 50Gi
+      storage: 100Gi
   storageClassName: juicefs-sc
 ---
 apiVersion: v1
