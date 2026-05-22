@@ -46,6 +46,10 @@ spec:
           env:
             - name: HOME
               value: /home/gitlab-runner
+            - name: KUBERNETES_NAMESPACE
+              value: "gitlab-runner"
+            - name: KUBERNETES_SERVICE_ACCOUNT
+              value: "gitlab-runner"
               
           volumeMounts:
             - name: runner-state
