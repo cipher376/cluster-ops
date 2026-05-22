@@ -60,7 +60,7 @@ data:
         bearer_token_overwrite_allowed = false
         image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
         namespace = "gitlab-runner"
-        privileged = false
+        privileged = true
         service_account = "gitlab-runner"
         service_account_overwrite_allowed = "gitlab-runner"
         cpu_limit = "4"
