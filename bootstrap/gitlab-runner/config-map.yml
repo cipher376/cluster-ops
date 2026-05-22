@@ -77,7 +77,12 @@ data:
             "nvidia.com/gpu" = "1"
           [runners.kubernetes.resource_requirements.requests]
             "nvidia.com/gpu" = "1"
-            
+        
+        [[runners.kubernetes.volumes.config_map]]
+          name = "ca-pemstore"
+          mount_path = "/etc/ssl/certs"
+          read_only = true
+
         [[runners.kubernetes.volumes.host_path]]
           name = "runner-home"
           mount_path = "/home/gitlab-runner/.gitlab-runner"
