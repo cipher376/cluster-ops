@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-runner-config
+  namespace: gitlab-runner
+data:
+  entrypoint: |
+    #!/bin/bash
+    
+    # --- TRUST CUSTOM CERTS FIRST ---
+    echo "Importing private cloud CA certificates..."
+    cp /custom-certs/ca.crt /usr/local/share/ca-certificates/gitlab-ca.crt
+    update-ca-certificates --fresh
+    
+    import_assets() {
+      if [[ -f /init-secrets/runner-registration-token ]]; then
+        export REGISTRATION_TOKEN=$(cat /init-secrets/runner-registration-token)
+      fi
+      if [[ -f /init-secrets/runner-token ]]; then
+        export RUNNER_TOKEN=$(cat /init-secrets/runner-token)
+      fi
+    }
+    import_assets
+    
+    cp /configmaps/config.toml /home/gitlab-runner/.gitlab-runner/config.toml
+    
+    if [[ ! -z "$REGISTRATION_TOKEN" ]]; then
+      echo "Executing dynamic registration routine..."
+      gitlab-runner register \
+        --non-interactive \
+        --url "https://gitlab.ncs-cloud.lan" \
+        --registration-token "${REGISTRATION_TOKEN}" \
+        --executor "kubernetes"
+    fi
+    
+    exec gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner
+    
+
+  config.toml: |
+    concurrent = 2
+    check_interval = 5
+    
+    [[runners]]
+      name = "openstack-gpu-runner"
+      url = "https://gitlab.ncs-cloud.lan"
+      id = 0
+      executor = "kubernetes"
+      token = ""
+      token_obtained_at = 0001-01-01T00:00:00Z
+      token_expires_at = 0001-01-01T00:00:00Z
+      request_concurrency = 2
+      poll_timeout = 600
+      poll_interval = 5
+      image_pull_policy = "if-not-present"
+      state_file = "/home/gitlab-runner/.gitlab-runner/.runner_system_id"
+      
+      [runners.kubernetes]
+        host = ""
+        bearer_token_overwrite_allowed = false
+        image = "pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime"
+        namespace = "gitlab-runner"
+        privileged = true
+        service_account = "gitlab-runner"
+        service_account_overwrite_allowed = "gitlab-runner"
+        cpu_limit = "4"
+        memory_limit = "8Gi"
+        
+        [runners.kubernetes.node_selector]
+          hardware = "gpu"
+          
+        [runners.kubernetes.node_tolerations]
+          "dedicated=gpu" = "NoExecute"
+          
+        [runners.kubernetes.resource_requirements]
+          [runners.kubernetes.resource_requirements.limits]
+            "nvidia.com/gpu" = "1"
+          [runners.kubernetes.resource_requirements.requests]
+            "nvidia.com/gpu" = "1"
+            
+        [[runners.kubernetes.volumes.host_path]]
+          name = "runner-home"
+          mount_path = "/home/gitlab-runner/.gitlab-runner"
+          read_only = false
+          host_path = "/mnt/training-cache/runner-home"
+          
+        [[runners.kubernetes.volumes.host_path]]
+          name = "nvidia-libs"
+          mount_path = "/usr/local/nvidia"
+          read_only = true
+          host_path = "/lib/x86_64-linux-gnu"
+          
+        [[runners.kubernetes.volumes.empty_dir]]
+          name = "model-cache"
+          mount_path = "/root/.cache/huggingface"
+          
+        [[runners.kubernetes.volumes.host_path]]
+          name = "nfs-checkpoints"
+          mount_path = "/models/checkpoints"
+          read_only = false
+          host_path = "/mnt/training-cache/checkpoints"

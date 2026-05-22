@@ -142,3 +142,17 @@ spec:
     requests:
       storage: 200Gi
   storageClassName: juicefs-sc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubeflow-datasets
+  namespace: llm-lab
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+  storageClassName: juicefs-sc

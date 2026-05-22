@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-runner
+  namespace: gitlab-runner
+  labels:
+    app: gitlab-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab-runner
+  template:
+    metadata:
+      labels:
+        app: gitlab-runner
+      annotations:
+        inject-certs: "enabled"
+    spec:
+      serviceAccountName: gitlab-runner
+      
+      # Keeps the runner manager scheduling targeted exclusively to the GPU node host
+      nodeSelector:
+        hardware: "gpu"
+        nvidia.com/gpu.present: "true"
+        
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoSchedule"
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoExecute"
+          
+      containers:
+        - name: gitlab-runner
+          image: registry.gitlab.com/gitlab-org/gitlab-runner:ubuntu-v16.10.0
+          imagePullPolicy: IfNotPresent
+          
+          # Overrides image default boot string to parse our static configuration assets
+          command: ["/usr/bin/env", "bash", "/configmaps/entrypoint"]
+          
+          env:
+            - name: HOME
+              value: /home/gitlab-runner
+              
+          volumeMounts:
+            - name: runner-state
+              mountPath: /home/gitlab-runner/.gitlab-runner
+            - name: config-volume
+              mountPath: /configmaps
+            - name: init-secrets-volume
+              mountPath: /init-secrets
+              readOnly: true
+            - name: custom-certs-volume
+              mountPath: /custom-certs
+              readOnly: true
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            exec:
+              command: ["/usr/bin/pgrep", "gitlab-runner"]
+              
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            exec:
+              command: ["/usr/bin/pgrep", "gitlab-runner"]
+              
+      volumes:
+        # Handles system ID tracking states locally inside the pod lifecycle
+        - name: runner-state
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: gitlab-runner-config
+            defaultMode: 0755
+        # Maps configuration values dynamically to your existing private secret resource block
+        - name: init-secrets-volume
+          secret:
+            secretName: gitlab-runner-secret
+            items:
+              - key: runner-registration-token
+                path: runner-registration-token
+              - key: runner-token
+                path: runner-token
+        - name: custom-certs-volume
+          configMap:
+            name: ca-pemstore
