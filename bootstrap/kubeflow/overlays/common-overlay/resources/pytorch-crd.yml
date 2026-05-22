@@ -1,0 +1,66 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: pytorchjobs.kubeflow.org
+spec:
+  group: kubeflow.org
+  names:
+    kind: PyTorchJob
+    listKind: PyTorchJobList
+    plural: pytorchjobs
+    singular: pytorchjob
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - pytorchReplicaSpecs
+              properties:
+                runPolicy:
+                  type: object
+                  properties:
+                    cleanPodPolicy:
+                      type: string
+                      enum: [All, Running, None]
+                    schedulingPolicy:
+                      type: object
+                      properties:
+                        minAvailable:
+                          type: integer
+                pytorchReplicaSpecs:
+                  type: object
+                  properties:
+                    Master:
+                      type: object
+                      required:
+                        - replicas
+                        - template
+                      properties:
+                        replicas:
+                          type: integer
+                          minimum: 1
+                          maximum: 1
+                        template:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                    Worker:
+                      type: object
+                      required:
+                        - replicas
+                        - template
+                      properties:
+                        replicas:
+                          type: integer
+                        template:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true

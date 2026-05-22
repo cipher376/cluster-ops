@@ -28,10 +28,8 @@ resources:
 - ../../upstream/26.03/common/user-namespace/base
 
 
-
-
-# resources:
-#   - resources/gpu-toleration.yml
+# Custom crd 
+- resources/pytorch-crd.yml
 
 images:
   - name: gcr.io/kubebuilder/kube-rbac-proxy
