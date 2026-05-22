@@ -42,6 +42,7 @@ data:
     
     [[runners]]
       name = "openstack-gpu-runner"
+      namespace = "gitlab-runner"
       url = "https://gitlab.ncs-cloud.lan"
       id = 0
       executor = "kubernetes"
