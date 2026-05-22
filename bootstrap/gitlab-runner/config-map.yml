@@ -80,7 +80,7 @@ data:
         
         [[runners.kubernetes.volumes.config_map]]
           name = "ca-pemstore"
-          mount_path = "/etc/ssl/certs"
+          mount_path = "/etc/containers/certs.d/gitlab-registry.ncs-cloud.lan"
           read_only = true
 
         [[runners.kubernetes.volumes.host_path]]
