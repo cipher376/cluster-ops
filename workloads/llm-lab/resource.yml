@@ -156,3 +156,30 @@ spec:
     requests:
       storage: 200Gi
   storageClassName: juicefs-sc
+
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: llm-lab-es
+  namespace: llm-lab
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  vault:
+    entity:
+      role: "cluster-ops-role" # role added
+  target:
+    name: gitlab-secrets
+    creationPolicy: Owner
+  data:
+    - secretKey: runner-token
+      remoteRef:
+        key: gitlab-runner/registration
+        property: token
+    - secretKey: runner-registration-token
+      remoteRef:
+        key: gitlab-runner/registration
+        property: token

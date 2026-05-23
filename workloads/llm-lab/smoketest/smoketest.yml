@@ -40,6 +40,8 @@ spec:
                   spec:
                     template:
                       spec:
+                        imagePullSecrets:
+                          - name: gitlab-secrets
                         securityContext:
                           runAsNonRoot: true
                           runAsUser: 1000
