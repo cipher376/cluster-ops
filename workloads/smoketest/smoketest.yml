@@ -28,11 +28,11 @@ spec:
         memory: "8Gi"
 
   runtimePatches:
-    - manager: kubeflow-user
+    - manager: "kubeflow.org/user"   
       trainingRuntimeSpec:
-        template:                          # Added: template wrapper
-          spec:                            # Added: spec wrapper
-            replicatedJobs:                # Now properly nested under template.spec
+        template:
+          spec:
+            replicatedJobs:
               - name: node
                 template:
                   spec:
