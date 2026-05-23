@@ -168,9 +168,6 @@ spec:
   secretStoreRef:
     name: vault-backend
     kind: ClusterSecretStore
-  vault:
-    entity:
-      role: "cluster-ops-role" # role added
   target:
     name: gitlab-secrets
     creationPolicy: Owner
