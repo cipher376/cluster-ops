@@ -9,6 +9,7 @@ spec:
   trainer:
     numNodes: 1
   runtimePatches:
+    - manager: kubeflow-user #
     - jsonPatch:
         # This targets the 'node' container inside the 'default' replicatedJob group
         - op: replace
