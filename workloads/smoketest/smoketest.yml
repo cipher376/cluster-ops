@@ -12,6 +12,11 @@ spec:
     - groupName: default
       template:
         spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000 # Standard non-root user ID for PyTorch images
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: node
               image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
@@ -20,6 +25,11 @@ spec:
                 - --model_dir=/models
                 - --dataset_dir=/datasets
                 - --output_dir=/checkpoints
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               resources:
                 limits:
                   cpu: "4"
