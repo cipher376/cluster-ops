@@ -1,60 +1,53 @@
-apiVersion: "kubeflow.org/v1"
-kind: "PyTorchJob"
+apiVersion: trainer.kubeflow.org/v1
+kind: TrainJob
 metadata:
-  name: "slm-production-juicefs"
+  name: slm-production-juicefs
   namespace: kubeflow
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
-  pytorchReplicaSpecs:
-    Worker:
-      replicas: 1
-      template:
-        metadata:
-            annotations:
-              # Bypasses the Istio proxy sidecar race condition we saw earlier
-              sidecar.istio.io/inject: "false"
-        spec:
-          restartPolicy: OnFailure
-          containers:
-            - name: pytorch
-              image: "gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest"
-              # lifecycle:
-              #   postStart:
-              #     exec:
-              #       command:
-              #         - /bin/sh
-              #         - -c
-              #         - |
-              #           until curl -s http://localhost:15021/healthz/ready; do 
-              #             echo "Waiting for Istio proxy sidecar networking to initialize..."; 
-              #             sleep 2; 
-              #           done
-              resources:
-                limits:
-                  nvidia.com/gpu: "1"
-                  memory: "16Gi"
-                  cpu: "4"
-              volumeMounts:
-                - name: juicefs-models
-                  mountPath: /models
-                  readOnly: true
-                - name: juicefs-datasets
-                  mountPath: /datasets
-                - name: juicefs-checkpoints
-                  mountPath: /checkpoints
-                - name: ephemeral-cache
-                  mountPath: /root/.cache
-          volumes:
-            - name: juicefs-models
-              persistentVolumeClaim:
-                claimName: kubeflow-models
-            - name: juicefs-datasets
-              persistentVolumeClaim:
-                claimName: kubeflow-datasets
-            - name: juicefs-checkpoints
-              persistentVolumeClaim:
-                claimName: kubeflow-checkpoints
-            - name: ephemeral-cache
-              emptyDir:
-                medium: Memory
+  # Reference an existing ClusterTrainingRuntime
+  runtimeRef:
+    kind: ClusterTrainingRuntime
+    name: torch-distributed  # Check available runtimes first
+  
+  # Define the training workload
+  trainer:
+    # Number of replicas (workers)
+    numProcPerNode: 1
+    numNodes: 1
+    
+    # Pod template for the training container
+    template:
+      spec:
+        containers:
+        - name: trainer
+          image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
+          resources:
+            limits:
+              cpu: "4"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+          - name: juicefs-models
+            mountPath: /models
+            readOnly: true
+          - name: juicefs-datasets
+            mountPath: /datasets
+          - name: juicefs-checkpoints
+            mountPath: /checkpoints
+          - name: ephemeral-cache
+            mountPath: /root/.cache
+        volumes:
+        - name: juicefs-models
+          persistentVolumeClaim:
+            claimName: kubeflow-models
+        - name: juicefs-datasets
+          persistentVolumeClaim:
+            claimName: kubeflow-datasets
+        - name: juicefs-checkpoints
+          persistentVolumeClaim:
+            claimName: kubeflow-checkpoints
+        - name: ephemeral-cache
+          emptyDir:
+            medium: Memory
+        restartPolicy: Never
+EOF
