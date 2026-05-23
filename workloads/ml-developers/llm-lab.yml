@@ -80,10 +80,10 @@ metadata:
 spec:
   hard:
     # CPU and Memory ceilings across all pods in this namespace combined
-    requests.cpu: "1"
-    requests.memory: 1Gi
-    limits.cpu: "2"
-    limits.memory: 2Gi
+    requests.cpu: "10"
+    requests.memory: 24Gi
+    limits.cpu: "10"
+    limits.memory: 24Gi
 
     requests.nvidia.com/gpu: "1"
     

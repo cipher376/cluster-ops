@@ -1,8 +1,51 @@
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubeflow-models
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pvc-b3e8206b-068d-438d-a92b-0685bebdd319  # Reference existing PV
+  storageClassName: juicefs-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubeflow-datasets
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+  volumeName: pvc-001e6273-75dd-4573-8cd6-7bc1346c25cf  # Reference existing PV
+  storageClassName: juicefs-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubeflow-checkpoints
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+  volumeName: pvc-5a5a0bec-96e3-4c7d-a62d-3c239cb22f31  # Reference existing PV
+  storageClassName: juicefs-sc
+---
 apiVersion: trainer.kubeflow.org/v1alpha1
 kind: TrainJob
 metadata:
   name: slm-production-juicefs
-  namespace: llm-lab
+  namespace: kubeflow
 spec:
   runtimeRef:
     apiGroup: trainer.kubeflow.org
