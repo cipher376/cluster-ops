@@ -169,7 +169,7 @@ spec:
     name: vault-backend
     kind: ClusterSecretStore
   target:
-    name: ggitlab-secrets
+    name: gitlab-secrets
     creationPolicy: Owner
     template:
       type: kubernetes.io/dockerconfigjson
