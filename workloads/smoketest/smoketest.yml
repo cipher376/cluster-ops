@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   pytorchReplicaSpecs:
-    Master:
+    Worker:
       replicas: 1
       template:
         spec:
