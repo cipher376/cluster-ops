@@ -8,56 +8,73 @@ spec:
     name: torch-distributed
   trainer:
     numNodes: 1
-  replicatedJobs:
-    - groupName: default
-      template:
-        spec:
-          # --- POD LEVEL SECURITY ---
-          template:
-            spec:
-              securityContext:
-                runAsNonRoot: true
-                runAsUser: 1000 # Standard non-root user ID for PyTorch images
-                seccompProfile:
-                  type: RuntimeDefault
-              containers:
-                - name: node
-                  image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-                  args:
-                    - --model_dir=/models
-                    - --dataset_dir=/datasets
-                    - --output_dir=/checkpoints
-                  # --- CONTAINER LEVEL SECURITY ---
-                  securityContext:
-                    allowPrivilegeEscalation: false
-                    capabilities:
-                      drop:
-                        - ALL
-                  resources:
-                    limits:
-                      cpu: "4"
-                      memory: 16Gi
-                      nvidia.com/gpu: "1"
-                  volumeMounts:
-                    - mountPath: /models
-                      name: juicefs-models
-                      readOnly: true
-                    - mountPath: /datasets
-                      name: juicefs-datasets
-                    - mountPath: /checkpoints
-                      name: juicefs-checkpoints
-                    - mountPath: /root/.cache
-                      name: ephemeral-cache
-              volumes:
-                - name: juicefs-models
-                  persistentVolumeClaim:
-                    claimName: kubeflow-models
-                - name: juicefs-datasets
-                  persistentVolumeClaim:
-                    claimName: kubeflow-datasets
-                - name: juicefs-checkpoints
-                  persistentVolumeClaim:
-                    claimName: kubeflow-checkpoints
-                - name: ephemeral-cache
-                  emptyDir:
-                    medium: Memory
+  runtimePatches:
+    - jsonPatch:
+        # This targets the 'node' container inside the 'default' replicatedJob group
+        - op: replace
+          path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/image
+          value: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
+
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/args
+          value:
+            - --model_dir=/models
+            - --dataset_dir=/datasets
+            - --output_dir=/checkpoints
+        # --- INJECT SECURITY CONTEXTS TO PASS PSA RESTRICTED POLICY ---
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/resources
+          value:
+            limits:
+              nvidia.com/gpu: "1"
+              cpu: "4"
+              memory: "16Gi"
+            requests:
+              nvidia.com/gpu: "1"
+              cpu: "2"
+              memory: "8Gi"
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/securityContext
+          value:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/securityContext
+          value:
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+        # --- INJECT JUICEFS MOUNTS AND VOLUMES ---
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/volumeMounts
+          value:
+            - mountPath: /models
+              name: juicefs-models
+              readOnly: true
+            - mountPath: /datasets
+              name: juicefs-datasets
+            - mountPath: /checkpoints
+              name: juicefs-checkpoints
+            - mountPath: /root/.cache
+              name: ephemeral-cache
+        - op: add
+          path: /spec/replicatedJobs/0/template/spec/template/spec/volumes
+          value:
+            - name: juicefs-models
+              persistentVolumeClaim:
+                claimName: kubeflow-models
+            - name: juicefs-datasets
+              persistentVolumeClaim:
+                claimName: kubeflow-datasets
+            - name: juicefs-checkpoints
+              persistentVolumeClaim:
+                claimName: kubeflow-checkpoints
+            - name: ephemeral-cache
+              emptyDir:
+                medium: Memory
