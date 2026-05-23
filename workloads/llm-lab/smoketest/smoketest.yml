@@ -13,21 +13,11 @@ spec:
 
   trainer:
     image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-    command: 
-      - /bin/bash
-      - -c
-      - |
-        # Use ephemeral volume for cache (writable by non-root)
-        export HF_HOME=/ephemeral-cache/huggingface
-        export TRANSFORMERS_CACHE=/ephemeral-cache/huggingface/hub
-        export HUGGINGFACE_HUB_CACHE=/ephemeral-cache/huggingface/hub
-        mkdir -p ${HF_HOME} ${TRANSFORMERS_CACHE}
-        pip install rich --quiet --user
-        exec python /workspace/train.py --model_dir=/models --dataset_dir=/datasets --output_dir=/checkpoints
-    # args:
-    #   - --model_dir=/models
-    #   - --dataset_dir=/datasets
-    #   - --output_dir=/checkpoints
+    command: ["python", "/workspace/train.py"]
+    args:
+      - --model_dir=/models
+      - --dataset_dir=/datasets
+      - --output_dir=/checkpoints
     numNodes: 1
     resourcesPerNode:
       limits:
