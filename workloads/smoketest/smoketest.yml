@@ -4,18 +4,17 @@ metadata:
   name: "slm-production-juicefs"
   namespace: kubeflow
   annotations:
-    # Forces ArgoCD to successfully sync even if the CRD was just installed a second prior
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   pytorchReplicaSpecs:
     Master:
       replicas: 1
-      restartPolicy: OnFailure
       template:
         spec:
+          # FIX: Placed inside template.spec alongside container definitions
+          restartPolicy: OnFailure
           containers:
             - name: pytorch
-              # UPDATED: Routing cleanly via your secure private cloud registry
               image: "gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest"
               resources:
                 limits:
@@ -25,13 +24,13 @@ spec:
               volumeMounts:
                 - name: juicefs-models
                   mountPath: /models
-                  readOnly: true # Industry Standard: Protect foundation weights
+                  readOnly: true
                 - name: juicefs-datasets
-                  mountPath: /datasets # New isolated dataset directory
+                  mountPath: /datasets
                 - name: juicefs-checkpoints
                   mountPath: /checkpoints
                 - name: ephemeral-cache
-                  mountPath: /root/.cache # Hugging Face/PyTorch internal staging buffer
+                  mountPath: /root/.cache
           volumes:
             - name: juicefs-models
               persistentVolumeClaim:
@@ -42,7 +41,6 @@ spec:
             - name: juicefs-checkpoints
               persistentVolumeClaim:
                 claimName: kubeflow-checkpoints
-            # High-performance local node NVMe storage scratchpad
             - name: ephemeral-cache
               emptyDir:
-                medium: Memory # Or {} to use the host node's fast local SSD disk
+                medium: Memory
