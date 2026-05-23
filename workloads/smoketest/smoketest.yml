@@ -11,11 +11,21 @@ spec:
       replicas: 1
       template:
         spec:
-          # FIX: Placed inside template.spec alongside container definitions
           restartPolicy: OnFailure
           containers:
             - name: pytorch
               image: "gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest"
+              lifecycle:
+                postStart:
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        until curl -s http://localhost:15021/healthz/ready; do 
+                          echo "Waiting for Istio proxy sidecar networking to initialize..."; 
+                          sleep 2; 
+                        done
               resources:
                 limits:
                   nvidia.com/gpu: "1"
