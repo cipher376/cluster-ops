@@ -13,7 +13,16 @@ spec:
 
   trainer:
     image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-    command: ["python", "/workspace/train.py"]
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        pip install rich --quiet
+        export HF_HOME=/.cache/huggingface
+        export TRANSFORMERS_CACHE=/.cache/huggingface/hub
+        mkdir -p /.cache/huggingface/hub
+        chmod -R 777 /.cache
+        exec python /workspace/train.py --model_dir=/models --dataset_dir=/datasets --output_dir=/checkpoints
     args:
       - --model_dir=/models
       - --dataset_dir=/datasets
