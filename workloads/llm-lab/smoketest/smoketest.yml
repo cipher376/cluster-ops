@@ -17,11 +17,12 @@ spec:
       - /bin/bash
       - -c
       - |
-        pip install rich --quiet
-        export HF_HOME=/.cache/huggingface
-        export TRANSFORMERS_CACHE=/.cache/huggingface/hub
-        mkdir -p /.cache/huggingface/hub
-        chmod -R 777 /.cache
+        # Use ephemeral volume for cache (writable by non-root)
+        export HF_HOME=/ephemeral-cache/huggingface
+        export TRANSFORMERS_CACHE=/ephemeral-cache/huggingface/hub
+        export HUGGINGFACE_HUB_CACHE=/ephemeral-cache/huggingface/hub
+        mkdir -p ${HF_HOME} ${TRANSFORMERS_CACHE}
+        pip install rich --quiet --user
         exec python /workspace/train.py --model_dir=/models --dataset_dir=/datasets --output_dir=/checkpoints
     # args:
     #   - --model_dir=/models
