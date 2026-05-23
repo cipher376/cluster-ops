@@ -16,9 +16,9 @@ spec:
             image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
             imagePullPolicy: Always
             
-            command:
-            - python
-            - /app/smoke_test.py
+            # command:
+            # - python
+            # - /app/smoke_test.py
             args:
             - --data-dir=/datasets
             - --model-dir=/models
