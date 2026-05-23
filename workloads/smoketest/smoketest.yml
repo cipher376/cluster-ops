@@ -10,7 +10,7 @@ spec:
     numNodes: 1
   runtimePatches:
     - manager: kubeflow-user #
-    - jsonPatch:
+      jsonPatch:
         # This targets the 'node' container inside the 'default' replicatedJob group
         - op: replace
           path: /spec/replicatedJobs/0/template/spec/template/spec/containers/0/image
