@@ -23,10 +23,10 @@ spec:
         mkdir -p /.cache/huggingface/hub
         chmod -R 777 /.cache
         exec python /workspace/train.py --model_dir=/models --dataset_dir=/datasets --output_dir=/checkpoints
-    args:
-      - --model_dir=/models
-      - --dataset_dir=/datasets
-      - --output_dir=/checkpoints
+    # args:
+    #   - --model_dir=/models
+    #   - --dataset_dir=/datasets
+    #   - --output_dir=/checkpoints
     numNodes: 1
     resourcesPerNode:
       limits:
