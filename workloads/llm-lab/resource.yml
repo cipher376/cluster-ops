@@ -158,7 +158,7 @@ spec:
   storageClassName: juicefs-sc
 
 ---
-apiVersion: external-secrets.io/v1
+apiVersion: external-secrets.io/v1beta1  # Use v1beta1, not v1
 kind: ExternalSecret
 metadata:
   name: llm-lab-es
@@ -168,15 +168,13 @@ spec:
   secretStoreRef:
     name: vault-backend
     kind: ClusterSecretStore
-  target:
-    name: gitlab-secrets
+  target:  # This should be 'target' not 'template'
+    name: gitlab-regcred  # The secret that will be created
     creationPolicy: Owner
-  data:
-    - secretKey: runner-token
-      remoteRef:
-        key: gitlab-runner/registration
-        property: token
-    - secretKey: runner-registration-token
-      remoteRef:
-        key: gitlab-runner/registration
-        property: token
+    template:
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: "{{ .dockerconfigjson | toString }}"
+  dataFrom:  # This is correct
+    - extract:
+        key: secret/data/docker/config
