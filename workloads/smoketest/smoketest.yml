@@ -1,53 +1,62 @@
-apiVersion: trainer.kubeflow.org/v1
+apiVersion: trainer.kubeflow.org/v1alpha1
 kind: TrainJob
 metadata:
   name: slm-production-juicefs
   namespace: kubeflow
 spec:
-  # Reference an existing ClusterTrainingRuntime
-  runtimeRef:
-    kind: ClusterTrainingRuntime
-    name: torch-distributed  # Check available runtimes first
-  
-  # Define the training workload
+  # No runtimeRef - standalone TrainJob
   trainer:
-    # Number of replicas (workers)
-    numProcPerNode: 1
-    numNodes: 1
-    
-    # Pod template for the training container
-    template:
-      spec:
-        containers:
-        - name: trainer
-          image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-          resources:
-            limits:
-              cpu: "4"
-              memory: 16Gi
-              nvidia.com/gpu: "1"
-          volumeMounts:
+    replicatedJobs:
+    - name: node
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: node
+            image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
+            imagePullPolicy: Always
+            
+            command:
+            - python
+            - /app/smoke_test.py
+            args:
+            - --data-dir=/datasets
+            - --model-dir=/models
+            - --checkpoint-dir=/checkpoints
+            
+            resources:
+              limits:
+                cpu: "4"
+                memory: 16Gi
+                nvidia.com/gpu: "1"
+              requests:
+                cpu: "2"
+                memory: 8Gi
+                nvidia.com/gpu: "1"
+            
+            volumeMounts:
+            - name: juicefs-models
+              mountPath: /models
+              readOnly: true
+            - name: juicefs-datasets
+              mountPath: /datasets
+            - name: juicefs-checkpoints
+              mountPath: /checkpoints
+            - name: ephemeral-cache
+              mountPath: /root/.cache
+          
+          volumes:
           - name: juicefs-models
-            mountPath: /models
-            readOnly: true
+            persistentVolumeClaim:
+              claimName: kubeflow-models
           - name: juicefs-datasets
-            mountPath: /datasets
+            persistentVolumeClaim:
+              claimName: kubeflow-datasets
           - name: juicefs-checkpoints
-            mountPath: /checkpoints
+            persistentVolumeClaim:
+              claimName: kubeflow-checkpoints
           - name: ephemeral-cache
-            mountPath: /root/.cache
-        volumes:
-        - name: juicefs-models
-          persistentVolumeClaim:
-            claimName: kubeflow-models
-        - name: juicefs-datasets
-          persistentVolumeClaim:
-            claimName: kubeflow-datasets
-        - name: juicefs-checkpoints
-          persistentVolumeClaim:
-            claimName: kubeflow-checkpoints
-        - name: ephemeral-cache
-          emptyDir:
-            medium: Memory
-        restartPolicy: Never
-EOF
+            emptyDir:
+              medium: Memory
+          
+          restartPolicy: Never
