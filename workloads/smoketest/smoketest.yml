@@ -4,72 +4,79 @@ metadata:
   name: slm-production-juicefs
   namespace: kubeflow
 spec:
+  # Reference to your existing ClusterTrainingRuntime
   runtimeRef:
-    name: torch-distributed
     apiGroup: trainer.kubeflow.org
     kind: ClusterTrainingRuntime
-  
+    name: torch-distributed
+
+  # Trainer configuration (Image, command, resources go here)
   trainer:
+    image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
+    command: ["python", "/workspace/train.py"]
+    args:
+      - --model_dir=/models
+      - --dataset_dir=/datasets
+      - --output_dir=/checkpoints
     numNodes: 1
-  
+    resourcesPerNode:
+      limits:
+        nvidia.com/gpu: "1"
+        cpu: "4"
+        memory: "16Gi"
+      requests:
+        nvidia.com/gpu: "1"
+        cpu: "2"
+        memory: "8Gi"
+
+  # Runtime Patches for storage and security
   runtimePatches:
     - manager: kubeflow-user
       trainingRuntimeSpec:
-        template:
-          spec:
-            replicatedJobs:
-              - name: node
+        # FIXED: Removed the extra template wrapper layers
+        replicatedJobs:
+          - groupName: default # FIXED: Added groupName to target your runtime definition
+            name: node
+            template:
+              spec:
                 template:
                   spec:
-                    template:
-                      spec:
-                        # Container configuration
-                        containers:
-                          - name: node
-                            image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-                            resources:
-                              limits:
-                                nvidia.com/gpu: "1"
-                                cpu: "4"
-                                memory: "16Gi"
-                              requests:
-                                nvidia.com/gpu: "1"
-                                cpu: "2"
-                                memory: "8Gi"
-                            securityContext:
-                              allowPrivilegeEscalation: false
-                              capabilities:
-                                drop:
-                                  - ALL
-                              runAsNonRoot: true
-                              runAsUser: 1000
-                            volumeMounts:
-                              - mountPath: /models
-                                name: juicefs-models
-                                readOnly: true
-                              - mountPath: /datasets
-                                name: juicefs-datasets
-                              - mountPath: /checkpoints
-                                name: juicefs-checkpoints
-                              - mountPath: /root/.cache
-                                name: ephemeral-cache
-                        # Pod security context
+                    # Pod-level security context
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                      seccompProfile:
+                        type: RuntimeDefault
+                    # Inject Volumes
+                    volumes:
+                      - name: juicefs-models
+                        persistentVolumeClaim:
+                          claimName: kubeflow-models
+                      - name: juicefs-datasets
+                        persistentVolumeClaim:
+                          claimName: kubeflow-datasets
+                      - name: juicefs-checkpoints
+                        persistentVolumeClaim:
+                          claimName: kubeflow-checkpoints
+                      - name: ephemeral-cache
+                        emptyDir:
+                          medium: Memory
+                    # Container-level configuration
+                    containers:
+                      - name: node
                         securityContext:
+                          allowPrivilegeEscalation: false
+                          capabilities:
+                            drop: ["ALL"]
                           runAsNonRoot: true
                           runAsUser: 1000
-                          seccompProfile:
-                            type: RuntimeDefault
-                        # Volumes
-                        volumes:
-                          - name: juicefs-models
-                            persistentVolumeClaim:
-                              claimName: kubeflow-models
-                          - name: juicefs-datasets
-                            persistentVolumeClaim:
-                              claimName: kubeflow-datasets
-                          - name: juicefs-checkpoints
-                            persistentVolumeClaim:
-                              claimName: kubeflow-checkpoints
-                          - name: ephemeral-cache
-                            emptyDir:
-                              medium: Memory
+                        volumeMounts:
+                          - mountPath: /models
+                            name: juicefs-models
+                            readOnly: true
+                          - mountPath: /datasets
+                            name: juicefs-datasets
+                          - mountPath: /checkpoints
+                            name: juicefs-checkpoints
+                          - mountPath: /root/.cache
+                            name: ephemeral-cache
