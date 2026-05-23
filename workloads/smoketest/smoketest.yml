@@ -12,49 +12,52 @@ spec:
     - groupName: default
       template:
         spec:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000 # Standard non-root user ID for PyTorch images
-            seccompProfile:
-              type: RuntimeDefault
-          containers:
-            - name: node
-              image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
-              # Omit command; using the ENTRYPOINT from your Dockerfile
-              args:
-                - --model_dir=/models
-                - --dataset_dir=/datasets
-                - --output_dir=/checkpoints
+          # --- POD LEVEL SECURITY ---
+          template:
+            spec:
               securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-              resources:
-                limits:
-                  cpu: "4"
-                  memory: 16Gi
-                  nvidia.com/gpu: "1"
-              volumeMounts:
-                - mountPath: /models
-                  name: juicefs-models
-                  readOnly: true
-                - mountPath: /datasets
-                  name: juicefs-datasets
-                - mountPath: /checkpoints
-                  name: juicefs-checkpoints
-                - mountPath: /root/.cache
-                  name: ephemeral-cache
-          volumes:
-            - name: juicefs-models
-              persistentVolumeClaim:
-                claimName: kubeflow-models
-            - name: juicefs-datasets
-              persistentVolumeClaim:
-                claimName: kubeflow-datasets
-            - name: juicefs-checkpoints
-              persistentVolumeClaim:
-                claimName: kubeflow-checkpoints
-            - name: ephemeral-cache
-              emptyDir:
-                medium: Memory
+                runAsNonRoot: true
+                runAsUser: 1000 # Standard non-root user ID for PyTorch images
+                seccompProfile:
+                  type: RuntimeDefault
+              containers:
+                - name: node
+                  image: gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest
+                  args:
+                    - --model_dir=/models
+                    - --dataset_dir=/datasets
+                    - --output_dir=/checkpoints
+                  # --- CONTAINER LEVEL SECURITY ---
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop:
+                        - ALL
+                  resources:
+                    limits:
+                      cpu: "4"
+                      memory: 16Gi
+                      nvidia.com/gpu: "1"
+                  volumeMounts:
+                    - mountPath: /models
+                      name: juicefs-models
+                      readOnly: true
+                    - mountPath: /datasets
+                      name: juicefs-datasets
+                    - mountPath: /checkpoints
+                      name: juicefs-checkpoints
+                    - mountPath: /root/.cache
+                      name: ephemeral-cache
+              volumes:
+                - name: juicefs-models
+                  persistentVolumeClaim:
+                    claimName: kubeflow-models
+                - name: juicefs-datasets
+                  persistentVolumeClaim:
+                    claimName: kubeflow-datasets
+                - name: juicefs-checkpoints
+                  persistentVolumeClaim:
+                    claimName: kubeflow-checkpoints
+                - name: ephemeral-cache
+                  emptyDir:
+                    medium: Memory
