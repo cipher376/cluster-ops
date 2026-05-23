@@ -10,22 +10,26 @@ spec:
     Worker:
       replicas: 1
       template:
+        metadata:
+            annotations:
+              # Bypasses the Istio proxy sidecar race condition we saw earlier
+              sidecar.istio.io/inject: "false"
         spec:
           restartPolicy: OnFailure
           containers:
             - name: pytorch
               image: "gitlab-registry.ncs-cloud.lan/ml/smoke-test:latest"
-              lifecycle:
-                postStart:
-                  exec:
-                    command:
-                      - /bin/sh
-                      - -c
-                      - |
-                        until curl -s http://localhost:15021/healthz/ready; do 
-                          echo "Waiting for Istio proxy sidecar networking to initialize..."; 
-                          sleep 2; 
-                        done
+              # lifecycle:
+              #   postStart:
+              #     exec:
+              #       command:
+              #         - /bin/sh
+              #         - -c
+              #         - |
+              #           until curl -s http://localhost:15021/healthz/ready; do 
+              #             echo "Waiting for Istio proxy sidecar networking to initialize..."; 
+              #             sleep 2; 
+              #           done
               resources:
                 limits:
                   nvidia.com/gpu: "1"
